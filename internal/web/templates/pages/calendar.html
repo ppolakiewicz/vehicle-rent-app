@@ -1,0 +1,85 @@
+{{define "head"}}
+<link rel="stylesheet" href="/static/vendor/vis-timeline-graph2d.min.css">
+<script src="/static/vendor/vis-timeline-graph2d.min.js"></script>
+{{end}}
+{{define "content"}}
+<div class="head"><h1>Kalendarz</h1>
+  <div class="actions">
+    <button onclick="zoom(-1)">Dziś</button>
+    <button onclick="zoom(7)">Tydzień</button>
+    <button onclick="zoom(31)">Miesiąc</button>
+    <button onclick="zoom(92)">3 miesiące</button>
+  </div>
+</div>
+<div class="legend">
+  <span class="l-reserved">Rezerwacja</span><span class="l-issued">Wydany</span><span class="l-overdue">Spóźniony zwrot</span>
+  <span class="l-returned">Zwrócony</span><span class="l-block">Blokada (serwis)</span>
+  <em>Kliknij pasek, aby otworzyć. Kliknij dwukrotnie puste miejsce, aby zarezerwować pojazd od tej daty.</em>
+</div>
+<div id="timeline"></div>
+<script>
+(function () {
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function fmt(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+  var groups = new vis.DataSet(), items = new vis.DataSet();
+  var today = new Date(); today.setHours(0, 0, 0, 0);
+  var start = new Date(today); start.setDate(start.getDate() - 2);
+  var end = new Date(today); end.setDate(end.getDate() + 14);
+  var tl = new vis.Timeline(document.getElementById('timeline'), items, groups, {
+    start: start, end: end, stack: false, orientation: 'top', zoomMin: 1000 * 60 * 60 * 6, zoomMax: 1000 * 60 * 60 * 24 * 400,
+    locale: 'pl', locales: { pl: { current: 'teraz', time: 'czas', deleteSelected: 'usuń' } },
+    selectable: true, margin: { item: 4 }, groupHeightMode: 'fixed'
+  });
+  window.tl = tl;
+  var loaded = null;
+  function load() {
+    var w = tl.getWindow();
+    var from = new Date(w.start.getTime() - 31 * 864e5), to = new Date(w.end.getTime() + 31 * 864e5);
+    if (loaded && from >= loaded.from && to <= loaded.to) return;
+    fetch('/api/calendar?from=' + encodeURIComponent(fmt(from)) + '&to=' + encodeURIComponent(fmt(to)))
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        loaded = { from: from, to: to };
+        groups.clear(); groups.add(d.groups);
+        items.clear(); items.add(d.items);
+        if (!d.groups.length) document.getElementById('timeline').innerHTML = '<p class="empty" style="padding:20px">Brak pojazdów. <a href="/vehicles/new">Dodaj pojazd</a>.</p>';
+      });
+  }
+  // Pick the axis step from the visible span: days up to ~6 weeks, then weeks, then months.
+  var MINOR = { millisecond: 'SSS', second: 's', minute: 'HH:mm', hour: 'HH:mm', weekday: 'dd D', day: 'D', week: 'D MMM', month: 'MMM', year: 'YYYY' };
+  var MAJOR = { millisecond: 'HH:mm:ss', second: 'D MMMM HH:mm', minute: 'dddd D MMMM', hour: 'dddd D MMMM', weekday: 'MMMM YYYY', day: 'MMMM YYYY', week: 'MMMM YYYY', month: 'YYYY', year: '' };
+  var axisKey = '';
+  function adjustAxis() {
+    var w = tl.getWindow(), days = (w.end - w.start) / 864e5, key, axis, minor = Object.assign({}, MINOR);
+    if (days <= 3) { key = 'h'; axis = { scale: 'hour', step: 3 }; }
+    else if (days <= 16) { key = 'd1'; axis = { scale: 'day', step: 1 }; minor.day = 'dd D'; }
+    else if (days <= 45) { key = 'd2'; axis = { scale: 'day', step: 1 }; }
+    else if (days <= 150) { key = 'w'; axis = { scale: 'week', step: 1 }; }
+    else { key = 'm'; axis = { scale: 'month', step: 1 }; }
+    if (key === axisKey) return;
+    axisKey = key;
+    tl.setOptions({ timeAxis: axis, format: { minorLabels: minor, majorLabels: MAJOR } });
+  }
+  adjustAxis();
+  var timer;
+  tl.on('rangechange', adjustAxis);
+  tl.on('rangechanged', function () { adjustAxis(); clearTimeout(timer); timer = setTimeout(load, 200); });
+  tl.on('click', function (p) {
+    if (p.item) { var it = items.get(p.item); if (it && it.url) location = it.url; }
+  });
+  tl.on('doubleClick', function (p) {
+    if (p.item || !p.group || !p.time) return;
+    var s = new Date(p.time); s.setMinutes(0, 0, 0); if (s.getHours() < 8) s.setHours(9);
+    var e = new Date(s); e.setDate(e.getDate() + 1);
+    location = '/rentals/new?vehicle=' + p.group + '&start=' + encodeURIComponent(fmt(s)) + '&end=' + encodeURIComponent(fmt(e));
+  });
+  window.zoom = function (days) {
+    var s = new Date(today), e = new Date(today);
+    if (days < 0) { s.setHours(0); e.setDate(e.getDate() + 1); }
+    else { s.setDate(s.getDate() - 1); e.setDate(e.getDate() + days); }
+    tl.setWindow(s, e);
+  };
+  load();
+})();
+</script>
+{{end}}

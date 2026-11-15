@@ -1,0 +1,22 @@
+{{define "content"}}
+<h1>{{.Title}}</h1>
+{{if .LicenseExpired}}<div class="warnbox">⚠ Prawo jazdy klienta jest ważne tylko do {{date .C.LicenseExpiry}}.</div>{{end}}
+<div class="info">{{.C.Name}} · <b>{{.V.Name}}</b> · {{dt .R.StartAt}} – {{dt .R.EndAt}}
+  {{if not .C.LicenseNumber}}<br>Brak numeru prawa jazdy klienta – <a href="/customers/{{.C.ID}}/edit" target="_blank">uzupełnij dane klienta</a> przed drukiem umowy.{{end}}</div>
+<form method="post" class="card stack">
+  <div class="row">
+    <div class="field"><label>Data i godzina wydania</label><input type="datetime-local" name="issued_at" value="{{.R.IssuedAt}}">{{template "err" .Errors.issued_at}}</div>
+    <div class="field"><label>Stan licznika (km)</label><input type="number" name="mileage_out" min="0" value="{{deref .R.MileageOut}}">{{template "err" .Errors.mileage_out}}</div>
+    <div class="field"><label>Poziom paliwa</label><select name="fuel_out">{{range .Fuel}}<option {{if eq . $.R.FuelOut}}selected{{end}}>{{.}}</option>{{end}}</select></div>
+  </div>
+  <div class="field"><label>Stan pojazdu, uszkodzenia, uwagi</label><textarea name="condition_out" placeholder="np. rysa na tylnym zderzaku">{{.R.ConditionOut}}</textarea></div>
+  <div class="row">
+    <div class="field"><label>Kaucja (zł)</label><input type="text" name="deposit" value="{{amount .R.Deposit}}">{{template "err" .Errors.deposit}}</div>
+    <div class="field"><label>&nbsp;</label><label class="check"><input type="checkbox" name="deposit_collected" value="1" {{if .R.DepositCollected}}checked{{end}}> Kaucja pobrana</label></div>
+  </div>
+  <div class="form-actions">
+    <button class="ok big">🔑 Wydaj pojazd</button>
+    <a class="btn big" href="/rentals/{{.R.ID}}">Anuluj</a>
+  </div>
+</form>
+{{end}}

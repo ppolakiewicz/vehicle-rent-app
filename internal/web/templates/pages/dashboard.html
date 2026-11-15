@@ -1,0 +1,66 @@
+{{define "content"}}
+<div class="head"><h1>Pulpit</h1>
+  <div class="actions"><a class="btn primary big" href="/rentals/new">＋ Nowe wypożyczenie</a></div>
+</div>
+
+{{if .NoCategories}}
+<div class="info">
+  <b>Witaj!</b> Zacznij od przygotowania danych:
+  1) dodaj <a href="/prices/new">cennik</a> (np. „Samochody osobowe”, „Quady”),
+  2) dodaj <a href="/vehicles/new">pojazdy</a>,
+  3) dodaj <a href="/equipment/new">wyposażenie</a> (fotelik, bagażnik…),
+  4) uzupełnij <a href="/settings">dane firmy</a> do umowy.
+</div>
+{{end}}
+
+<div class="stats">
+  <div class="stat"><b>{{.D.ActiveCount}}</b><span>pojazdów u klientów</span></div>
+  <div class="stat"><b>{{.D.ReservedCount}}</b><span>rezerwacji</span></div>
+  <div class="stat"><b>{{.D.VehicleCount}}</b><span>pojazdów we flocie</span></div>
+</div>
+
+{{if .D.Overdue}}
+<div class="card" style="border-color:#fecaca">
+  <h2 class="late">⚠ Spóźnione zwroty</h2>
+  {{template "rental-table" .D.Overdue}}
+</div>
+{{end}}
+
+<div class="grid">
+  <div class="card">
+    <h2>Do wydania dziś</h2>
+    {{range .D.PickupsToday}}
+      <div class="eq-row">
+        <div class="name"><a href="/rentals/{{.ID}}"><b>{{.VehicleName}}</b></a><br><span class="muted">{{.CustomerName}} · {{dt .StartAt}}</span>
+          {{if lt .StartAt $.Today}}<br><span class="late">termin wydania minął</span>{{end}}</div>
+        <a class="btn ok small" href="/rentals/{{.ID}}/issue">Wydaj</a>
+      </div>
+    {{else}}<p class="muted">Brak wydań na dziś.</p>{{end}}
+  </div>
+  <div class="card">
+    <h2>Zwroty dziś</h2>
+    {{range .D.ReturnsToday}}
+      <div class="eq-row">
+        <div class="name"><a href="/rentals/{{.ID}}"><b>{{.VehicleName}}</b></a><br><span class="muted">{{.CustomerName}} · do {{dt .EndAt}}</span></div>
+        <a class="btn small" href="/rentals/{{.ID}}/return">Przyjmij zwrot</a>
+      </div>
+    {{else}}<p class="muted">Brak zwrotów na dziś.</p>{{end}}
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>Najbliższe rezerwacje (7 dni)</h2>
+    {{range .D.Upcoming}}
+      <div class="eq-row"><div class="name"><a href="/rentals/{{.ID}}"><b>{{dt .StartAt}}</b> · {{.VehicleName}}</a><br><span class="muted">{{.CustomerName}}</span></div></div>
+    {{else}}<p class="muted">Brak rezerwacji w najbliższym tygodniu.</p>{{end}}
+  </div>
+  <div class="card">
+    <h2>Przeglądy i ubezpieczenia ({{.S.ReminderDays}} dni)</h2>
+    {{range .D.Reminders}}
+      <div class="eq-row"><div class="name"><a href="/vehicles/{{.VehicleID}}">{{.Vehicle}}</a><br><span class="muted">{{.What}}</span></div>
+        <span class="{{if .Overdue}}late{{end}}">{{date .Due}}{{if .Overdue}} – po terminie!{{end}}</span></div>
+    {{else}}<p class="muted">Nic nie wygasa w najbliższym czasie.</p>{{end}}
+  </div>
+</div>
+{{end}}

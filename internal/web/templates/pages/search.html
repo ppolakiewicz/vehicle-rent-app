@@ -1,0 +1,35 @@
+{{define "content"}}
+<h1>Wolne pojazdy</h1>
+<form class="card" method="get" action="/search">
+  <div class="row">
+    <div class="field"><label>Od</label><input type="datetime-local" name="start" value="{{.Start}}" required></div>
+    <div class="field"><label>Do</label><input type="datetime-local" name="end" value="{{.End}}" required></div>
+    <div class="field"><label>Typ pojazdu</label>
+      <select name="kind"><option value="">— wszystkie —</option>
+        {{range kinds}}<option {{if eq . $.Kind}}selected{{end}}>{{.}}</option>{{end}}
+      </select></div>
+    <div class="field"><label>Rozliczenie</label>
+      <div class="radios">
+        <label><input type="radio" name="billing" value="day" {{if eq .Billing "day"}}checked{{end}}> dobowe</label>
+        <label><input type="radio" name="billing" value="hour" {{if eq .Billing "hour"}}checked{{end}}> godzinowe</label>
+      </div></div>
+  </div>
+  <button class="primary">🔍 Szukaj</button>
+</form>
+{{with .Error}}<div class="alert">{{.}}</div>{{end}}
+{{if .Searched}}
+<table class="list">
+  <thead><tr><th>Pojazd</th><th>Typ</th><th>Cennik</th><th class="num">Szacunkowa cena (brutto)</th><th></th></tr></thead>
+  <tbody>
+  {{range .Results}}
+    <tr><td><a href="/vehicles/{{.V.ID}}"><b>{{.V.Name}}</b></a></td><td>{{.V.Kind}}</td><td>{{.V.CategoryName}}</td>
+      <td class="num"><b>{{money .Quote.Gross}}</b><br><span class="muted">{{.Quote.Units}} {{(index .Quote.Lines 0).Unit}}, netto {{money .Quote.Net}}</span></td>
+      <td class="num"><a class="btn primary" href="{{.URL}}">Zarezerwuj</a></td></tr>
+  {{else}}
+    <tr><td colspan="5" class="empty">Brak wolnych pojazdów w tym terminie.</td></tr>
+  {{end}}
+  </tbody>
+</table>
+<p class="hint">Cena bez wyposażenia dodatkowego i bez ewentualnej dopłaty za kilometry.</p>
+{{end}}
+{{end}}

@@ -1,0 +1,28 @@
+{{define "content"}}
+<h1>{{if .C.ID}}Edycja klienta{{else}}Nowy klient{{end}}</h1>
+<form method="post" action="{{if .C.ID}}/customers/{{.C.ID}}{{else}}/customers{{end}}" class="card stack">
+  <div class="radios">
+    <label><input type="radio" name="kind" value="person" {{if ne .C.Kind "company"}}checked{{end}}> Osoba prywatna</label>
+    <label><input type="radio" name="kind" value="company" {{if eq .C.Kind "company"}}checked{{end}}> Firma</label>
+  </div>
+  <div class="row" data-show-when="kind=company">
+    <div class="field"><label>Nazwa firmy</label><input type="text" name="company_name" value="{{.C.CompanyName}}">{{template "err" .Errors.company_name}}</div>
+    <div class="field"><label>NIP</label><input type="text" name="nip" value="{{.C.NIP}}"></div>
+  </div>
+  <div class="row">
+    <div class="field"><label>Imię</label><input type="text" name="first_name" value="{{.C.FirstName}}"></div>
+    <div class="field"><label>Nazwisko</label><input type="text" name="last_name" value="{{.C.LastName}}">{{template "err" .Errors.last_name}}</div>
+    <div class="field"><label>Telefon</label><input type="tel" name="phone" value="{{.C.Phone}}"></div>
+    <div class="field"><label>E-mail</label><input type="email" name="email" value="{{.C.Email}}"></div>
+  </div>
+  <div class="row">
+    <div class="field"><label>PESEL</label><input type="text" name="pesel" value="{{.C.PESEL}}"></div>
+    <div class="field"><label>Seria i nr dowodu / paszportu</label><input type="text" name="id_document" value="{{.C.IDDocument}}"></div>
+    <div class="field"><label>Nr prawa jazdy</label><input type="text" name="license_number" value="{{.C.LicenseNumber}}"></div>
+    <div class="field"><label>Prawo jazdy ważne do</label><input type="date" name="license_expiry" value="{{.C.LicenseExpiry}}">{{template "err" .Errors.license_expiry}}</div>
+  </div>
+  <div class="field"><label>Adres</label><textarea name="address">{{.C.Address}}</textarea></div>
+  <div class="field"><label>Uwagi</label><textarea name="notes">{{.C.Notes}}</textarea></div>
+  <div class="form-actions"><button class="primary big">💾 Zapisz</button><a class="btn big" href="{{if .C.ID}}/customers/{{.C.ID}}{{else}}/customers{{end}}">Anuluj</a></div>
+</form>
+{{end}}

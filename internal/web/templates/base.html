@@ -1,0 +1,34 @@
+{{define "base"}}<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{.Title}} – Wypożyczalnia</title>
+<link rel="icon" href="/static/icon.png">
+<link rel="stylesheet" href="/static/app.css">
+<script src="/static/vendor/htmx.min.js" defer></script>
+<script src="/static/app.js" defer></script>
+{{block "head" .}}{{end}}
+</head>
+<body>
+<nav class="side">
+  <div class="brand">🚗 Wypożyczalnia</div>
+  <a href="/" class="{{if active .Path "/"}}on{{end}}">🏠 Pulpit</a>
+  <a href="/rentals/new" class="new">＋ Nowe wypożyczenie</a>
+  <a href="/calendar" class="{{if active .Path "/calendar"}}on{{end}}">📅 Kalendarz</a>
+  <a href="/search" class="{{if active .Path "/search"}}on{{end}}">🔍 Wolne pojazdy</a>
+  <a href="/rentals" class="{{if active .Path "/rentals"}}on{{end}}">📄 Wypożyczenia</a>
+  <a href="/customers" class="{{if active .Path "/customers"}}on{{end}}">👤 Klienci</a>
+  <hr>
+  <a href="/vehicles" class="{{if active .Path "/vehicles"}}on{{end}}">🚙 Pojazdy</a>
+  <a href="/equipment" class="{{if active .Path "/equipment"}}on{{end}}">🧰 Wyposażenie</a>
+  <a href="/prices" class="{{if active .Path "/prices"}}on{{end}}">💰 Cennik</a>
+  <a href="/settings" class="{{if active .Path "/settings"}}on{{end}}">⚙️ Ustawienia</a>
+  <div class="ver">wersja {{.Version}}</div>
+</nav>
+<main>
+  {{with .Flash}}<div class="flash">{{.}}</div>{{end}}
+  {{block "content" .}}{{end}}
+</main>
+</body>
+</html>{{end}}

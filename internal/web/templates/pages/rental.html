@@ -1,0 +1,61 @@
+{{define "content"}}
+<div class="head">
+  <h1>{{.R.Number}} {{template "status-badge" .R}}</h1>
+  <div class="actions">
+    {{if eq .R.Status "reserved"}}<a class="btn ok big" href="/rentals/{{.R.ID}}/issue">🔑 Wydaj pojazd</a>{{end}}
+    {{if eq .R.Status "issued"}}<a class="btn ok big" href="/rentals/{{.R.ID}}/return">↩ Przyjmij zwrot</a>{{end}}
+    {{if .R.Active}}<a class="btn" href="/rentals/{{.R.ID}}/edit">✏️ Edytuj</a>{{end}}
+    {{if eq .R.Status "returned"}}<a class="btn" href="/rentals/{{.R.ID}}/return">✏️ Popraw zwrot</a>{{end}}
+    <a class="btn" href="/rentals/{{.R.ID}}/contract" target="_blank">🖨 Umowa</a>
+    {{if ne .R.Status "reserved"}}{{if ne .R.Status "cancelled"}}<a class="btn" href="/rentals/{{.R.ID}}/protocol" target="_blank">🖨 Protokół</a>{{end}}{{end}}
+    {{if eq .R.Status "reserved"}}<form method="post" action="/rentals/{{.R.ID}}/cancel" data-confirm="Anulować tę rezerwację?"><button class="danger">Anuluj rezerwację</button></form>{{end}}
+    {{if eq .R.Status "cancelled"}}<form method="post" action="/rentals/{{.R.ID}}/restore"><button>Przywróć rezerwację</button></form>{{end}}
+  </div>
+</div>
+{{if .R.Overdue}}<div class="alert">⚠ Termin zwrotu minął {{dt .R.EndAt}}. Przy zwrocie zostaną doliczone kolejne {{if eq .R.Billing "day"}}doby{{else}}godziny{{end}}.</div>{{end}}
+{{if .LicenseExpired}}<div class="warnbox">⚠ Prawo jazdy klienta jest ważne tylko do {{date .C.LicenseExpiry}}.</div>{{end}}
+
+<div class="two">
+  <div>
+    <div class="card">
+      <h2>Najem</h2>
+      <table class="kv">
+        <tr><th>Klient</th><td><a href="/customers/{{.C.ID}}">{{.C.Name}}</a>{{with .C.Phone}} · {{.}}{{end}}</td></tr>
+        <tr><th>Pojazd</th><td><a href="/vehicles/{{.V.ID}}">{{.V.Name}}</a> <span class="muted">({{.V.Kind}})</span></td></tr>
+        <tr><th>Termin</th><td>{{dt .R.StartAt}} – {{dt .R.EndAt}}</td></tr>
+        <tr><th>Rozliczenie</th><td>{{billing .R.Billing}} · {{money .R.DayRate}} / doba, {{money .R.HourRate}} / godz. (netto)</td></tr>
+        <tr><th>Limit km</th><td>{{if .R.KmLimit}}{{kmp .R.KmLimit}}, ponad limit {{money .R.KmRate}} netto/km{{else}}bez limitu{{end}}</td></tr>
+        {{with .R.Notes}}<tr><th>Uwagi</th><td>{{nl2br .}}</td></tr>{{end}}
+      </table>
+    </div>
+    {{if .R.IssuedAt}}
+    <div class="card">
+      <h2>Wydanie i zwrot</h2>
+      <table class="kv">
+        <tr><th>Wydano</th><td>{{dt .R.IssuedAt}} · licznik {{kmp .R.MileageOut}} · paliwo {{.R.FuelOut}}</td></tr>
+        {{with .R.ConditionOut}}<tr><th>Stan przy wydaniu</th><td>{{nl2br .}}</td></tr>{{end}}
+        {{if .R.ReturnedAt}}
+        <tr><th>Zwrócono</th><td>{{dt .R.ReturnedAt}} · licznik {{kmp .R.MileageIn}} · paliwo {{.R.FuelIn}}</td></tr>
+        <tr><th>Przejechano</th><td>{{kmp .R.KmDriven}}</td></tr>
+        {{with .R.ConditionIn}}<tr><th>Stan przy zwrocie</th><td>{{nl2br .}}</td></tr>{{end}}
+        {{end}}
+      </table>
+    </div>
+    {{end}}
+  </div>
+  <div class="card">
+    <h2>Rozliczenie</h2>
+    <table class="quote-table" style="width:100%">
+      {{range .Quote.Lines}}<tr><td>{{.Name}}<br><span class="muted">{{.Qty}} {{.Unit}} × {{money .UnitPrice}}</span></td><td class="num">{{money .Net}}</td></tr>{{end}}
+      <tr class="total"><td>Razem netto</td><td class="num">{{money .Quote.Net}}</td></tr>
+      <tr><td>VAT {{rate .Quote.VATRate}}%</td><td class="num">{{money .Quote.VAT}}</td></tr>
+      <tr><td><b>Do zapłaty brutto</b></td><td class="num big-total">{{money .Quote.Gross}}</td></tr>
+    </table>
+    <h3>Kaucja</h3>
+    <p>{{money .R.Deposit}}
+      {{if .R.DepositCollected}}· pobrana{{if eq .R.Status "returned"}} · zwrócono {{money .R.DepositReturned}}{{if gt .R.DepositKept 0}} · <b>zatrzymano {{money .R.DepositKept}}</b>{{end}}{{end}}
+      {{else if ne .R.Status "reserved"}}· nie pobrano{{else}}· do pobrania przy wydaniu{{end}}</p>
+    {{if eq .R.Status "reserved"}}<p class="hint">Ceny pochodzą z aktualnego cennika i zostaną zablokowane przy wydaniu pojazdu.</p>{{end}}
+  </div>
+</div>
+{{end}}

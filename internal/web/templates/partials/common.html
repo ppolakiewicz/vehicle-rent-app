@@ -1,0 +1,23 @@
+{{define "err"}}{{with .}}<div class="field-error">{{.}}</div>{{end}}{{end}}
+
+{{define "status-badge"}}<span class="badge st-{{.Status}}{{if .Overdue}} st-overdue{{end}}">{{if .Overdue}}Spóźniony zwrot{{else}}{{status .Status}}{{end}}</span>{{end}}
+
+{{define "rental-table"}}
+<table class="list">
+  <thead><tr><th>Numer</th><th>Klient</th><th>Pojazd</th><th>Od</th><th>Do</th><th>Status</th></tr></thead>
+  <tbody>
+  {{range .}}
+    <tr class="click" onclick="location='/rentals/{{.ID}}'">
+      <td><a href="/rentals/{{.ID}}">{{.Number}}</a></td>
+      <td>{{.CustomerName}}</td>
+      <td>{{.VehicleName}}</td>
+      <td>{{dt .StartAt}}</td>
+      <td>{{dt .EndAt}}</td>
+      <td>{{template "status-badge" .}}</td>
+    </tr>
+  {{else}}
+    <tr><td colspan="6" class="empty">Brak pozycji.</td></tr>
+  {{end}}
+  </tbody>
+</table>
+{{end}}

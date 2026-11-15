@@ -1,0 +1,30 @@
+{{define "content"}}
+<h1>{{if .V.ID}}Edycja pojazdu{{else}}Nowy pojazd{{end}}</h1>
+{{if not .Categories}}<div class="warnbox">Najpierw <a href="/prices/new">dodaj cennik</a> – każdy pojazd musi mieć przypisany cennik.</div>{{end}}
+<form method="post" action="{{if .V.ID}}/vehicles/{{.V.ID}}{{else}}/vehicles{{end}}" class="card stack">
+  <div class="row">
+    <div class="field"><label>Typ</label><select name="kind">{{range kinds}}<option {{if eq . $.V.Kind}}selected{{end}}>{{.}}</option>{{end}}</select></div>
+    <div class="field"><label>Marka</label><input type="text" name="make" value="{{.V.Make}}" placeholder="np. Toyota">{{template "err" .Errors.make}}</div>
+    <div class="field"><label>Model</label><input type="text" name="model" value="{{.V.Model}}" placeholder="np. Yaris"></div>
+    <div class="field"><label>Nr rejestracyjny</label><input type="text" name="reg_number" value="{{.V.RegNumber}}"></div>
+  </div>
+  <div class="row">
+    <div class="field"><label>VIN</label><input type="text" name="vin" value="{{.V.VIN}}"></div>
+    <div class="field"><label>Rok produkcji</label><input type="number" name="year" value="{{if .V.Year}}{{.V.Year}}{{end}}">{{template "err" .Errors.year}}</div>
+    <div class="field"><label>Kolor</label><input type="text" name="color" value="{{.V.Color}}"></div>
+    <div class="field"><label>Przebieg (km)</label><input type="number" name="mileage" min="0" value="{{.V.Mileage}}">{{template "err" .Errors.mileage}}</div>
+  </div>
+  <div class="field"><label>Cennik</label>
+    <select name="category_id"><option value="">— wybierz —</option>
+      {{range .Categories}}<option value="{{.ID}}" {{if eq .ID $.V.CategoryID}}selected{{end}}>{{.Name}} · {{money .DayRate}}/doba, {{money .HourRate}}/godz.</option>{{end}}
+    </select>{{template "err" .Errors.category_id}}</div>
+  <div class="row">
+    <div class="field"><label>Przegląd ważny do</label><input type="date" name="inspection_due" value="{{.V.InspectionDue}}"></div>
+    <div class="field"><label>OC ważne do</label><input type="date" name="oc_due" value="{{.V.OCDue}}"></div>
+    <div class="field"><label>AC ważne do</label><input type="date" name="ac_due" value="{{.V.ACDue}}"></div>
+  </div>
+  <div class="field"><label>Uwagi</label><textarea name="notes">{{.V.Notes}}</textarea></div>
+  <label class="check"><input type="checkbox" name="active" value="1" {{if .V.Active}}checked{{end}}> Pojazd aktywny (dostępny do wynajmu)</label>
+  <div class="form-actions"><button class="primary big">💾 Zapisz</button><a class="btn big" href="{{if .V.ID}}/vehicles/{{.V.ID}}{{else}}/vehicles{{end}}">Anuluj</a></div>
+</form>
+{{end}}

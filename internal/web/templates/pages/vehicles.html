@@ -1,0 +1,17 @@
+{{define "content"}}
+<div class="head"><h1>Pojazdy</h1><a class="btn primary" href="/vehicles/new">＋ Dodaj pojazd</a></div>
+<table class="list">
+  <thead><tr><th>Pojazd</th><th>Typ</th><th>Cennik</th><th class="num">Przebieg</th><th>Przegląd</th><th>OC</th><th>Teraz</th></tr></thead>
+  <tbody>
+  {{range .Vehicles}}
+    <tr class="click {{if not .Active}}inactive{{end}}" onclick="location='/vehicles/{{.ID}}'">
+      <td><a href="/vehicles/{{.ID}}"><b>{{.Name}}</b></a>{{if not .Active}} <span class="muted">(wycofany)</span>{{end}}</td>
+      <td>{{.Kind}}</td><td>{{.CategoryName}}</td><td class="num">{{km .Mileage}} km</td>
+      <td class="{{if and .InspectionDue (lt .InspectionDue $.Today)}}late{{end}}">{{date .InspectionDue}}</td>
+      <td class="{{if and .OCDue (lt .OCDue $.Today)}}late{{end}}">{{date .OCDue}}</td>
+      <td>{{with index $.State .ID}}{{if eq . "blocked"}}<span class="badge st-blocked">serwis</span>{{else}}<span class="badge st-issued">zajęty</span>{{end}}{{else}}{{if .Active}}<span class="badge st-free">wolny</span>{{end}}{{end}}</td>
+    </tr>
+  {{else}}<tr><td colspan="7" class="empty">Brak pojazdów. {{if true}}<a href="/vehicles/new">Dodaj pierwszy pojazd</a>.{{end}}</td></tr>{{end}}
+  </tbody>
+</table>
+{{end}}

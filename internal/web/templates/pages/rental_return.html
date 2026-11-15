@@ -1,0 +1,39 @@
+{{define "content"}}
+<h1>{{.Title}}</h1>
+<div class="info"><b>{{.V.Name}}</b> · wydano {{dt .R.IssuedAt}} przy {{kmp .R.MileageOut}} · planowany zwrot {{dt .R.EndAt}}
+  {{if .R.KmLimit}} · limit {{kmp .R.KmLimit}}{{end}}</div>
+<form method="post" hx-post="/rentals/{{.R.ID}}/return" hx-vals='{"preview":"1"}' hx-trigger="change, input delay:500ms" hx-target="#settlement">
+  <div class="two">
+    <div class="card stack">
+      <div class="row">
+        <div class="field"><label>Data i godzina zwrotu</label><input type="datetime-local" name="returned_at" value="{{.R.ReturnedAt}}">{{template "err" .Errors.returned_at}}</div>
+        <div class="field"><label>Stan licznika (km)</label><input type="number" name="mileage_in" min="0" value="{{deref .R.MileageIn}}" autofocus>{{template "err" .Errors.mileage_in}}</div>
+        <div class="field"><label>Poziom paliwa</label><select name="fuel_in">{{range .Fuel}}<option {{if eq . $.R.FuelIn}}selected{{end}}>{{.}}</option>{{end}}</select></div>
+      </div>
+      <div class="field"><label>Stan pojazdu, nowe uszkodzenia, uwagi</label><textarea name="condition_in">{{.R.ConditionIn}}</textarea></div>
+      {{if .R.DepositCollected}}
+      <div class="field"><label>Zwracana kaucja (zł) – pobrano {{money .R.Deposit}}</label><input type="text" name="deposit_returned" value="{{amount .R.DepositReturned}}">
+        {{template "err" .Errors.deposit_returned}}<div class="hint">Jeśli zatrzymujesz część kaucji (np. za szkodę), wpisz mniejszą kwotę i opisz powód w uwagach.</div></div>
+      {{else}}<input type="hidden" name="deposit_returned" value="0">{{end}}
+      <div class="form-actions">
+        <button class="ok big" type="submit">✔ Zapisz zwrot</button>
+        <a class="btn big" href="/rentals/{{.R.ID}}">Anuluj</a>
+      </div>
+    </div>
+    <div class="card" id="settlement">{{template "settlement" .}}</div>
+  </div>
+</form>
+{{end}}
+
+{{define "settlement"}}
+<h2>Rozliczenie</h2>
+{{range .Errors}}<div class="alert">{{.}}</div>{{end}}
+<table class="quote-table" style="width:100%">
+  {{range .Quote.Lines}}<tr><td>{{.Name}}<br><span class="muted">{{.Qty}} {{.Unit}} × {{money .UnitPrice}}</span></td><td class="num">{{money .Net}}</td></tr>{{end}}
+  <tr class="total"><td>Razem netto</td><td class="num">{{money .Quote.Net}}</td></tr>
+  <tr><td>VAT {{rate .Quote.VATRate}}%</td><td class="num">{{money .Quote.VAT}}</td></tr>
+  <tr><td><b>Do zapłaty brutto</b></td><td class="num big-total">{{money .Quote.Gross}}</td></tr>
+</table>
+{{with .R.KmDriven}}<p class="muted">Przejechano {{.}} km.</p>{{end}}
+{{if .R.DepositCollected}}<p>Kaucja: pobrano {{money .R.Deposit}}, zwrot {{money .R.DepositReturned}}{{if gt (sub .R.Deposit .R.DepositReturned) 0}}, <b>zatrzymano {{money (sub .R.Deposit .R.DepositReturned)}}</b>{{end}}.</p>{{end}}
+{{end}}

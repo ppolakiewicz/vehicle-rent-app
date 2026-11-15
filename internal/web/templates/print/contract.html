@@ -1,0 +1,40 @@
+{{define "title"}}Umowa {{.R.Number}}{{end}}
+{{define "doc"}}
+<h1>UMOWA NAJMU POJAZDU nr {{.R.Number}}</h1>
+<div class="sub">zawarta {{if .S.ContractCity}}w {{.S.ContractCity}} {{end}}dnia {{date (or .R.IssuedAt .Today)}}</div>
+<table class="parties"><tr>
+  <td><h2>Wynajmujący</h2>{{template "lessor" .S}}</td>
+  <td><h2>Najemca</h2>{{template "lessee" .C}}</td>
+</tr></table>
+
+<h2>§1. Przedmiot najmu</h2>
+{{template "vehicle" .V}}
+{{if .R.Equipment}}<p>Wyposażenie dodatkowe: {{range $i, $e := .R.Equipment}}{{if $i}}, {{end}}{{$e.Name}} ({{$e.Quantity}} szt.){{end}}.</p>{{end}}
+
+<h2>§2. Okres najmu i limit kilometrów</h2>
+<table class="kv">
+  <tr><th>Od</th><td>{{dt .R.StartAt}}</td></tr>
+  <tr><th>Do</th><td>{{dt .R.EndAt}}</td></tr>
+  <tr><th>Limit kilometrów</th><td>{{if .R.KmLimit}}{{kmp .R.KmLimit}} na cały okres najmu; za każdy kilometr ponad limit {{money .R.KmRate}} netto{{else}}bez limitu{{end}}</td></tr>
+  {{if .R.MileageOut}}<tr><th>Stan licznika przy wydaniu</th><td>{{kmp .R.MileageOut}}</td></tr>{{end}}
+</table>
+
+<h2>§3. Opłaty</h2>
+<table class="grid">
+  <tr><th>Pozycja</th><th class="num">Ilość</th><th class="num">Cena netto</th><th class="num">Wartość netto</th></tr>
+  {{range .Quote.Lines}}<tr><td>{{.Name}}</td><td class="num">{{.Qty}} {{.Unit}}</td><td class="num">{{money .UnitPrice}}</td><td class="num">{{money .Net}}</td></tr>{{end}}
+  <tr><td colspan="3" class="num">Razem netto</td><td class="num">{{money .Quote.Net}}</td></tr>
+  <tr><td colspan="3" class="num">VAT {{rate .Quote.VATRate}}%</td><td class="num">{{money .Quote.VAT}}</td></tr>
+  <tr><td colspan="3" class="num"><b>Razem brutto</b></td><td class="num"><b>{{money .Quote.Gross}}</b></td></tr>
+</table>
+<p>Najem rozliczany {{billing .R.Billing}} ({{if eq .R.Billing "day"}}{{money .R.DayRate}} netto za każdą rozpoczętą dobę{{else}}{{money .R.HourRate}} netto za każdą rozpoczętą godzinę{{end}}).
+  Za przedłużenie najmu naliczana jest opłata według tej samej stawki.
+  Kaucja: <b>{{money .R.Deposit}}</b>{{if .R.DepositCollected}} – pobrana przy wydaniu pojazdu{{end}}.
+  {{with .S.BankAccount}}Nr konta: {{.}}.{{end}}</p>
+
+<h2>§4. Warunki najmu</h2>
+<div class="terms">{{.S.ContractTerms}}</div>
+{{with .R.Notes}}<h2>Uwagi</h2><div class="terms">{{.}}</div>{{end}}
+
+<div class="signs"><div>Wynajmujący</div><div>Najemca</div></div>
+{{end}}

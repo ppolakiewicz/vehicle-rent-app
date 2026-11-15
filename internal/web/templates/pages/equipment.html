@@ -1,0 +1,13 @@
+{{define "content"}}
+<div class="head"><h1>Wyposażenie dodatkowe</h1><a class="btn primary" href="/equipment/new">＋ Dodaj wyposażenie</a></div>
+<table class="list">
+  <thead><tr><th>Nazwa</th><th class="num">Cena netto (jednorazowo)</th><th class="num">Sztuk</th><th class="num">Wolnych teraz</th><th></th></tr></thead>
+  <tbody>
+  {{range .Items}}
+    <tr class="{{if not .Active}}inactive{{end}}"><td><b>{{.Name}}</b>{{if not .Active}} (nieaktywne){{end}}{{with .Notes}}<br><span class="muted">{{.}}</span>{{end}}</td>
+      <td class="num">{{money .Price}}</td><td class="num">{{.Stock}}</td><td class="num">{{index $.Free .ID}}</td>
+      <td class="num"><a class="btn small" href="/equipment/{{.ID}}/edit">Edytuj</a></td></tr>
+  {{else}}<tr><td colspan="5" class="empty">Brak wyposażenia – np. fotelik dziecięcy, bagażnik dachowy, GPS.</td></tr>{{end}}
+  </tbody>
+</table>
+{{end}}

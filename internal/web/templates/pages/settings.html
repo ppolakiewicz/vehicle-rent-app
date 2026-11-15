@@ -1,0 +1,47 @@
+{{define "content"}}
+<h1>Ustawienia</h1>
+<form method="post" action="/settings" class="stack">
+  <div class="card">
+    <h2>Dane firmy (na umowie)</h2>
+    <div class="row">
+      <div class="field"><label>Nazwa firmy</label><input type="text" name="company_name" value="{{.S.CompanyName}}">{{template "err" .Errors.company_name}}</div>
+      <div class="field"><label>NIP</label><input type="text" name="company_nip" value="{{.S.CompanyNIP}}"></div>
+      <div class="field"><label>Telefon</label><input type="text" name="company_phone" value="{{.S.CompanyPhone}}"></div>
+      <div class="field"><label>E-mail</label><input type="text" name="company_email" value="{{.S.CompanyEmail}}"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Adres</label><textarea name="company_address">{{.S.CompanyAddress}}</textarea></div>
+      <div class="field"><label>Nr konta bankowego</label><input type="text" name="bank_account" value="{{.S.BankAccount}}">
+        <label style="margin-top:12px">Miejscowość zawarcia umowy</label><input type="text" name="contract_city" value="{{.S.ContractCity}}"></div>
+    </div>
+    <div class="field"><label>Warunki umowy (drukowane na umowie najmu)</label><textarea name="contract_terms" rows="10">{{.S.ContractTerms}}</textarea></div>
+  </div>
+  <div class="card">
+    <h2>Rozliczenia</h2>
+    <div class="row">
+      <div class="field"><label>Stawka VAT (%)</label><input type="text" name="vat_rate" value="{{rate .S.VATRate}}">{{template "err" .Errors.vat_rate}}</div>
+      <div class="field"><label>Tolerancja przy zwrocie (minuty)</label><input type="number" name="tolerance_minutes" min="0" value="{{.S.ToleranceMinutes}}">
+        <div class="hint">Przy rozliczeniu dobowym spóźnienie do tylu minut nie nalicza kolejnej doby.</div></div>
+      <div class="field"><label>Przerwa między wynajmami (minuty)</label><input type="number" name="buffer_minutes" min="0" value="{{.S.BufferMinutes}}">
+        <div class="hint">Czas na sprzątanie/tankowanie – pojazdu nie można zarezerwować bliżej niż tyle minut od innego najmu.</div></div>
+      <div class="field"><label>Przypomnienia – dni wcześniej</label><input type="number" name="reminder_days" min="0" value="{{.S.ReminderDays}}">
+        <div class="hint">Przeglądy i ubezpieczenia na pulpicie.</div></div>
+      <div class="field"><label>Przedrostek numeru umowy</label><input type="text" name="number_prefix" value="{{.S.NumberPrefix}}">{{template "err" .Errors.number_prefix}}
+        <div class="hint">Np. UM → UM/2026/0001</div></div>
+    </div>
+  </div>
+  <button class="primary big">💾 Zapisz ustawienia</button>
+</form>
+
+<div class="card" style="margin-top:18px">
+  <h2>Dane i kopie zapasowe</h2>
+  <p>Baza danych: <code>{{.DataDir}}</code><br>Kopie zapasowe: <code>{{.BackupDir}}</code></p>
+  <p class="hint">Kopia zapasowa robi się automatycznie przy każdym uruchomieniu programu (przechowywane jest 30 ostatnich).
+    Warto co jakiś czas skopiować folder z kopiami na pendrive lub dysk w chmurze.</p>
+  <div class="actions">
+    <form method="post" action="/settings/backup"><button>💾 Zrób kopię teraz</button></form>
+    <form method="post" action="/settings/open-folder"><input type="hidden" name="which" value="backup"><button>📂 Otwórz folder z kopiami</button></form>
+    <form method="post" action="/settings/open-folder"><input type="hidden" name="which" value="data"><button>📂 Otwórz folder z danymi</button></form>
+  </div>
+</div>
+{{end}}

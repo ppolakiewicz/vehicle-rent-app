@@ -1,0 +1,14 @@
+{{define "content"}}
+<h1>{{if .E.ID}}Edycja wyposażenia{{else}}Nowe wyposażenie{{end}}</h1>
+<form method="post" action="{{if .E.ID}}/equipment/{{.E.ID}}{{else}}/equipment{{end}}" class="card stack">
+  <div class="row">
+    <div class="field"><label>Nazwa</label><input type="text" name="name" value="{{.E.Name}}" placeholder="np. Fotelik dziecięcy">{{template "err" .Errors.name}}</div>
+    <div class="field"><label>Liczba sztuk</label><input type="number" name="stock" min="0" value="{{.E.Stock}}">{{template "err" .Errors.stock}}</div>
+    <div class="field"><label>Cena netto za wypożyczenie (zł)</label><input type="text" name="price" value="{{amount .E.Price}}">{{template "err" .Errors.price}}<div class="hint">Opłata jednorazowa, niezależna od długości najmu.</div></div>
+  </div>
+  <div class="field"><label>Uwagi</label><input type="text" name="notes" value="{{.E.Notes}}"></div>
+  <label class="check"><input type="checkbox" name="active" value="1" {{if .E.Active}}checked{{end}}> Aktywne (można dodawać do wypożyczeń)</label>
+  <div class="form-actions"><button class="primary big">💾 Zapisz</button><a class="btn big" href="/equipment">Anuluj</a></div>
+</form>
+{{if .E.ID}}<form method="post" action="/equipment/{{.E.ID}}/delete" data-confirm="Usunąć to wyposażenie?"><button class="danger">Usuń</button></form>{{end}}
+{{end}}

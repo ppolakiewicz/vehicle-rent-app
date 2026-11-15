@@ -1,0 +1,15 @@
+{{define "content"}}
+<h1>{{if .C.ID}}Edycja cennika{{else}}Nowy cennik{{end}}</h1>
+<form method="post" action="{{if .C.ID}}/prices/{{.C.ID}}{{else}}/prices{{end}}" class="card stack">
+  <div class="field"><label>Nazwa</label><input type="text" name="name" value="{{.C.Name}}" placeholder="np. Samochody osobowe – klasa B">{{template "err" .Errors.name}}</div>
+  <div class="row">
+    <div class="field"><label>Cena za dobę netto (zł)</label><input type="text" name="day_rate" value="{{amount .C.DayRate}}">{{template "err" .Errors.day_rate}}</div>
+    <div class="field"><label>Cena za godzinę netto (zł)</label><input type="text" name="hour_rate" value="{{amount .C.HourRate}}">{{template "err" .Errors.hour_rate}}</div>
+    <div class="field"><label>Cena za km ponad limit netto (zł)</label><input type="text" name="km_rate" value="{{amount .C.KmRate}}">{{template "err" .Errors.km_rate}}</div>
+    <div class="field"><label>Kaucja (zł)</label><input type="text" name="deposit" value="{{amount .C.Deposit}}">{{template "err" .Errors.deposit}}</div>
+  </div>
+  <div class="field"><label>Uwagi</label><input type="text" name="notes" value="{{.C.Notes}}"></div>
+  <div class="form-actions"><button class="primary big">💾 Zapisz</button><a class="btn big" href="/prices">Anuluj</a></div>
+</form>
+{{if .C.ID}}<form method="post" action="/prices/{{.C.ID}}/delete" data-confirm="Usunąć ten cennik?"><button class="danger">Usuń</button></form>{{end}}
+{{end}}

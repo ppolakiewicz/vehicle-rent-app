@@ -1,0 +1,19 @@
+{{define "content"}}
+<div class="head"><h1>Klienci</h1><a class="btn primary" href="/customers/new">＋ Dodaj klienta</a></div>
+<form class="searchbar" method="get" action="/customers">
+  <input type="search" name="q" value="{{.Q}}" placeholder="Szukaj: nazwisko, firma, NIP, PESEL, telefon…" autofocus
+    hx-get="/customers" hx-trigger="input changed delay:300ms" hx-target="#rows" hx-include="this">
+</form>
+<div id="rows">{{template "customer-rows" .}}</div>
+{{end}}
+{{define "customer-rows"}}
+<table class="list">
+  <thead><tr><th>Klient</th><th>Telefon</th><th>E-mail</th><th>Dokument / NIP</th></tr></thead>
+  <tbody>
+  {{range .Customers}}
+    <tr class="click" onclick="location='/customers/{{.ID}}'"><td><a href="/customers/{{.ID}}"><b>{{.Name}}</b></a></td><td>{{.Phone}}</td><td>{{.Email}}</td>
+      <td>{{if eq .Kind "company"}}NIP {{.NIP}}{{else}}{{.IDDocument}}{{end}}</td></tr>
+  {{else}}<tr><td colspan="4" class="empty">Brak klientów.</td></tr>{{end}}
+  </tbody>
+</table>
+{{end}}

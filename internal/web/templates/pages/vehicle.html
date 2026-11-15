@@ -1,0 +1,55 @@
+{{define "content"}}
+<div class="head"><h1>{{.V.Name}}{{if not .V.Active}} <span class="badge st-cancelled">wycofany</span>{{end}}</h1>
+  <div class="actions">
+    <a class="btn primary" href="/rentals/new?vehicle={{.V.ID}}">＋ Nowe wypożyczenie</a>
+    <a class="btn" href="/vehicles/{{.V.ID}}/edit">✏️ Edytuj</a>
+    <form method="post" action="/vehicles/{{.V.ID}}/delete" data-confirm="Usunąć pojazd?"><button class="danger">Usuń</button></form>
+  </div>
+</div>
+<div class="grid">
+  <div class="card">
+    <h2>Dane pojazdu</h2>
+    <table class="kv">
+      <tr><th>Typ</th><td>{{.V.Kind}}</td></tr>
+      <tr><th>Nr rejestracyjny</th><td>{{.V.RegNumber}}</td></tr>
+      <tr><th>VIN</th><td>{{.V.VIN}}</td></tr>
+      <tr><th>Rok / kolor</th><td>{{if .V.Year}}{{.V.Year}}{{end}} {{.V.Color}}</td></tr>
+      <tr><th>Przebieg</th><td>{{km .V.Mileage}} km</td></tr>
+      <tr><th>Przegląd do</th><td class="{{if and .V.InspectionDue (lt .V.InspectionDue .Today)}}late{{end}}">{{date .V.InspectionDue}}</td></tr>
+      <tr><th>OC do</th><td class="{{if and .V.OCDue (lt .V.OCDue .Today)}}late{{end}}">{{date .V.OCDue}}</td></tr>
+      <tr><th>AC do</th><td class="{{if and .V.ACDue (lt .V.ACDue .Today)}}late{{end}}">{{date .V.ACDue}}</td></tr>
+      {{with .V.Notes}}<tr><th>Uwagi</th><td>{{nl2br .}}</td></tr>{{end}}
+    </table>
+  </div>
+  <div class="card">
+    <h2>Cennik: {{.Cat.Name}}</h2>
+    <table class="kv">
+      <tr><th>Doba (netto)</th><td>{{money .Cat.DayRate}}</td></tr>
+      <tr><th>Godzina (netto)</th><td>{{money .Cat.HourRate}}</td></tr>
+      <tr><th>Km ponad limit (netto)</th><td>{{money .Cat.KmRate}}</td></tr>
+      <tr><th>Kaucja</th><td>{{money .Cat.Deposit}}</td></tr>
+    </table>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Blokady (serwis, naprawa)</h2>
+  <p class="hint">W czasie blokady pojazdu nie można zarezerwować.</p>
+  <form method="post" action="/vehicles/{{.V.ID}}/blocks" class="row" style="align-items:end">
+    <div class="field"><label>Od</label><input type="datetime-local" name="start_at" value="{{.BlockStart}}"></div>
+    <div class="field"><label>Do</label><input type="datetime-local" name="end_at" value="{{.BlockEnd}}"></div>
+    <div class="field"><label>Powód</label><input type="text" name="reason" placeholder="Serwis"></div>
+    <div class="field"><button class="primary">Dodaj blokadę</button></div>
+  </form>
+  {{if .Blocks}}
+  <table class="list">
+    <thead><tr><th>Od</th><th>Do</th><th>Powód</th><th></th></tr></thead>
+    {{range .Blocks}}<tr><td>{{dt .StartAt}}</td><td>{{dt .EndAt}}</td><td>{{.Reason}}</td>
+      <td class="num"><form method="post" action="/blocks/{{.ID}}/delete" data-confirm="Usunąć blokadę?"><input type="hidden" name="back" value="/vehicles/{{$.V.ID}}"><button class="small danger">Usuń</button></form></td></tr>{{end}}
+  </table>
+  {{end}}
+</div>
+
+<h2>Wypożyczenia</h2>
+{{template "rental-table" .Rentals}}
+{{end}}

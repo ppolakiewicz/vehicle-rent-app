@@ -1,0 +1,112 @@
+{{define "content"}}
+<h1>{{.Title}}</h1>
+{{if .In.Locked}}<div class="info">Pojazd jest wydany – można zmienić tylko termin zakończenia, limit km, wyposażenie i uwagi.</div>{{end}}
+{{if .Errors}}<div class="alert">Popraw zaznaczone pola.</div>{{end}}
+<form id="rental-form" method="post" action="{{if .In.ID}}/rentals/{{.In.ID}}{{else}}/rentals{{end}}"
+  hx-post="/rentals/quote" hx-trigger="change, input delay:600ms" hx-target="#quote" hx-swap="innerHTML">
+  <input type="hidden" name="id" value="{{.In.ID}}">
+  <div class="two">
+    <div>
+      <div class="card">
+        <h2>1. Klient</h2>
+        {{if .In.Locked}}
+          <select disabled>{{range .Customers}}{{if eq .ID $.In.CustomerID}}<option>{{.Name}}</option>{{end}}{{end}}</select>
+        {{else}}
+        <div class="row">
+          <div class="field"><label>Szukaj klienta</label><input type="search" data-filter-select="customer_id" placeholder="nazwisko, firma, telefon…" autocomplete="off"></div>
+          <div class="field"><label>Klient</label>
+            <select name="customer_id" id="customer_id">
+              <option value="">— nowy klient (wpisz poniżej) —</option>
+              {{range .Customers}}<option value="{{.ID}}" {{if eq .ID $.In.CustomerID}}selected{{end}}>{{.Name}}{{with .Phone}} · {{.}}{{end}}</option>{{end}}
+            </select>
+            {{template "err" .Errors.customer_id}}</div>
+        </div>
+        <details {{if or .Errors.new_last .Errors.new_company .In.NewLast .In.NewCompany}}open{{end}}>
+          <summary><b>Nowy klient</b> – szybkie dodanie (pozostałe dane uzupełnisz później w zakładce Klienci)</summary>
+          <div class="radios">
+            <label><input type="radio" name="new_kind" value="person" {{if ne .In.NewKind "company"}}checked{{end}}> osoba prywatna</label>
+            <label><input type="radio" name="new_kind" value="company" {{if eq .In.NewKind "company"}}checked{{end}}> firma</label>
+          </div>
+          <div class="row">
+            <div class="field" data-show-when="new_kind=company"><label>Nazwa firmy</label><input type="text" name="new_company" value="{{.In.NewCompany}}">{{template "err" .Errors.new_company}}</div>
+            <div class="field"><label>Imię</label><input type="text" name="new_first" value="{{.In.NewFirst}}"></div>
+            <div class="field"><label>Nazwisko</label><input type="text" name="new_last" value="{{.In.NewLast}}">{{template "err" .Errors.new_last}}</div>
+            <div class="field"><label>Telefon</label><input type="tel" name="new_phone" value="{{.In.NewPhone}}"></div>
+          </div>
+        </details>
+        {{end}}
+      </div>
+
+      <div class="card">
+        <h2>2. Pojazd i termin</h2>
+        <div class="field"><label>Pojazd</label>
+          <select name="vehicle_id" {{if .In.Locked}}disabled{{end}}>
+            <option value="">— wybierz pojazd —</option>
+            {{range .Vehicles}}<option value="{{.ID}}" {{if eq .ID $.In.VehicleID}}selected{{end}}>{{.Kind}}: {{.Name}} · {{.CategoryName}}</option>{{end}}
+          </select>
+          {{template "err" .Errors.vehicle_id}}
+          {{if not .Vehicles}}<div class="hint">Brak pojazdów – <a href="/vehicles/new">dodaj pojazd</a>.</div>{{end}}
+        </div>
+        <div class="row">
+          <div class="field"><label>Od</label><input type="datetime-local" name="start_at" value="{{.In.StartAt}}" {{if .In.Locked}}disabled{{end}}>{{template "err" .Errors.start_at}}</div>
+          <div class="field"><label>Do</label><input type="datetime-local" name="end_at" value="{{.In.EndAt}}">{{template "err" .Errors.end_at}}</div>
+        </div>
+        <div class="row">
+          <div class="field"><label>Rozliczenie</label>
+            <div class="radios">
+              <label><input type="radio" name="billing" value="day" {{if eq .In.Billing "day"}}checked{{end}} {{if .In.Locked}}disabled{{end}}> za doby</label>
+              <label><input type="radio" name="billing" value="hour" {{if eq .In.Billing "hour"}}checked{{end}} {{if .In.Locked}}disabled{{end}}> za godziny</label>
+            </div></div>
+          <div class="field"><label>Limit kilometrów (na cały najem)</label>
+            <input type="number" name="km_limit" min="1" value="{{.In.KmLimit}}" placeholder="bez limitu">
+            {{template "err" .Errors.km_limit}}<div class="hint">Zostaw puste, jeśli bez limitu.</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>3. Wyposażenie dodatkowe</h2>
+        {{template "err" .Errors.equipment}}
+        {{range .Equipment}}
+          <div class="eq-row"><span class="name">{{.Name}} <span class="muted">· {{money .Price}} netto · {{.Stock}} szt. w magazynie</span></span>
+            <input type="number" min="0" max="{{.Stock}}" name="eq_{{.ID}}" value="{{with index $.In.Qty .ID}}{{.}}{{else}}0{{end}}"> szt.</div>
+        {{else}}<p class="muted">Brak wyposażenia. Możesz je dodać w zakładce <a href="/equipment">Wyposażenie</a>.</p>{{end}}
+      </div>
+
+      <div class="card">
+        <h2>4. Uwagi</h2>
+        <textarea name="notes" placeholder="np. miejsce wydania, dodatkowy kierowca…">{{.In.Notes}}</textarea>
+      </div>
+    </div>
+
+    <div class="quote-box">
+      <div class="card" id="quote">{{template "quote" .}}</div>
+      <div class="form-actions">
+        <button class="primary big" type="submit">💾 {{if .In.ID}}Zapisz zmiany{{else}}Zapisz rezerwację{{end}}</button>
+        <a class="btn big" href="{{if .In.ID}}/rentals/{{.In.ID}}{{else}}/rentals{{end}}">Anuluj</a>
+      </div>
+    </div>
+  </div>
+</form>
+{{end}}
+
+{{define "quote"}}
+<h2>Wycena</h2>
+{{with .QuoteError}}<div class="alert">{{.}}</div>{{end}}
+{{range .Conflicts}}<div class="alert">⛔ Pojazd zajęty: {{.Label}}<br><small>{{dt .StartAt}} – {{dt .EndAt}}</small></div>{{end}}
+{{range .Shortages}}<div class="alert">⛔ {{.Name}}: chcesz {{.Requested}} szt., wolnych w tym terminie {{.Available}}.</div>{{end}}
+{{with .Quote}}
+<table class="quote-table" style="width:100%">
+  {{range .Lines}}<tr><td>{{.Name}}<br><span class="muted">{{.Qty}} {{.Unit}} × {{money .UnitPrice}}</span></td><td class="num">{{money .Net}}</td></tr>{{end}}
+  <tr class="total"><td>Razem netto</td><td class="num">{{money .Net}}</td></tr>
+  <tr><td>VAT {{rate .VATRate}}%</td><td class="num">{{money .VAT}}</td></tr>
+  <tr><td><b>Do zapłaty brutto</b></td><td class="num big-total">{{money .Gross}}</td></tr>
+</table>
+{{with $.R}}
+  <p class="muted" style="margin-top:12px">Kaucja (osobno, bez VAT): <b>{{money .Deposit}}</b>
+  {{if .KmLimit}}<br>Ponad limit {{deref .KmLimit}} km: {{money .KmRate}} netto za każdy km{{end}}</p>
+  {{if and (not $.Conflicts) (not $.Shortages)}}<div class="flash" style="margin:8px 0 0">✔ Pojazd dostępny w tym terminie.</div>{{end}}
+{{end}}
+{{else}}
+<p class="muted">Wybierz pojazd i termin, aby zobaczyć cenę.</p>
+{{end}}
+{{end}}

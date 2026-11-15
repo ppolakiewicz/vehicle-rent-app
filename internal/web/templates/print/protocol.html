@@ -1,0 +1,37 @@
+{{define "title"}}Protokół {{.R.Number}}{{end}}
+{{define "doc"}}
+<h1>PROTOKÓŁ WYDANIA I ZWROTU POJAZDU</h1>
+<div class="sub">do umowy najmu nr {{.R.Number}}</div>
+<table class="parties"><tr>
+  <td><h2>Wynajmujący</h2>{{template "lessor" .S}}</td>
+  <td><h2>Najemca</h2>{{template "lessee" .C}}</td>
+</tr></table>
+<h2>Pojazd</h2>
+{{template "vehicle" .V}}
+{{if .R.Equipment}}<p>Wyposażenie dodatkowe: {{range $i, $e := .R.Equipment}}{{if $i}}, {{end}}{{$e.Name}} ({{$e.Quantity}} szt.){{end}}.</p>{{end}}
+
+<h2>Wydanie pojazdu</h2>
+<table class="kv">
+  <tr><th>Data i godzina wydania</th><td>{{dt .R.IssuedAt}}</td></tr>
+  <tr><th>Stan licznika</th><td>{{kmp .R.MileageOut}}</td></tr>
+  <tr><th>Poziom paliwa</th><td>{{.R.FuelOut}}</td></tr>
+  <tr><th>Kaucja</th><td>{{money .R.Deposit}}{{if .R.DepositCollected}} – pobrana{{else}} – nie pobrano{{end}}</td></tr>
+</table>
+<p>Stan pojazdu, uszkodzenia:</p>
+<div class="box">{{if .R.ConditionOut}}{{.R.ConditionOut}}{{else}}bez uwag{{end}}</div>
+<div class="signs"><div>Wydający</div><div>Najemca</div></div>
+
+<h2 style="margin-top:28px">Zwrot pojazdu</h2>
+<table class="kv">
+  <tr><th>Data i godzina zwrotu</th><td>{{if .R.ReturnedAt}}{{dt .R.ReturnedAt}}{{else}}........................................{{end}}</td></tr>
+  <tr><th>Stan licznika</th><td>{{if .R.MileageIn}}{{kmp .R.MileageIn}} (przejechano {{kmp .R.KmDriven}}{{if .R.KmLimit}}, limit {{kmp .R.KmLimit}}{{end}}){{else}}........................................{{end}}</td></tr>
+  <tr><th>Poziom paliwa</th><td>{{if .R.ReturnedAt}}{{.R.FuelIn}}{{else}}........................................{{end}}</td></tr>
+  {{if eq .R.Status "returned"}}
+  <tr><th>Do zapłaty (brutto)</th><td><b>{{money .Quote.Gross}}</b> (netto {{money .Quote.Net}} + VAT {{money .Quote.VAT}})</td></tr>
+  {{if .R.DepositCollected}}<tr><th>Kaucja</th><td>zwrócono {{money .R.DepositReturned}}{{if gt .R.DepositKept 0}}, zatrzymano {{money .R.DepositKept}}{{end}}</td></tr>{{end}}
+  {{end}}
+</table>
+<p>Stan pojazdu, nowe uszkodzenia:</p>
+<div class="box">{{if .R.ReturnedAt}}{{if .R.ConditionIn}}{{.R.ConditionIn}}{{else}}bez uwag{{end}}{{end}}</div>
+<div class="signs"><div>Przyjmujący</div><div>Najemca</div></div>
+{{end}}

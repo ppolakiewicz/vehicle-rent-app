@@ -1,0 +1,37 @@
+{{define "content"}}
+<div class="head"><h1>{{.C.Name}}</h1>
+  <div class="actions">
+    <a class="btn primary" href="/rentals/new?customer={{.C.ID}}">＋ Nowe wypożyczenie</a>
+    <a class="btn" href="/customers/{{.C.ID}}/edit">✏️ Edytuj</a>
+    <form method="post" action="/customers/{{.C.ID}}/delete" data-confirm="Usunąć klienta?"><button class="danger">Usuń</button></form>
+  </div>
+</div>
+{{if .LicenseExpired}}<div class="warnbox">⚠ Prawo jazdy straciło ważność {{date .C.LicenseExpiry}}.</div>{{end}}
+<div class="grid">
+  <div class="card">
+    <h2>Dane</h2>
+    <table class="kv">
+      <tr><th>Rodzaj</th><td>{{if eq .C.Kind "company"}}Firma{{else}}Osoba prywatna{{end}}</td></tr>
+      {{if eq .C.Kind "company"}}<tr><th>Firma</th><td>{{.C.CompanyName}}</td></tr><tr><th>NIP</th><td>{{.C.NIP}}</td></tr>{{end}}
+      <tr><th>Imię i nazwisko</th><td>{{.C.FirstName}} {{.C.LastName}}</td></tr>
+      <tr><th>PESEL</th><td>{{.C.PESEL}}</td></tr>
+      <tr><th>Dowód / paszport</th><td>{{.C.IDDocument}}</td></tr>
+      <tr><th>Prawo jazdy</th><td>{{.C.LicenseNumber}}{{with .C.LicenseExpiry}} · ważne do {{date .}}{{end}}</td></tr>
+      <tr><th>Telefon</th><td>{{.C.Phone}}</td></tr>
+      <tr><th>E-mail</th><td>{{.C.Email}}</td></tr>
+      <tr><th>Adres</th><td>{{nl2br .C.Address}}</td></tr>
+      {{with .C.Notes}}<tr><th>Uwagi</th><td>{{nl2br .}}</td></tr>{{end}}
+    </table>
+  </div>
+  <div class="card">
+    <h2>Podsumowanie</h2>
+    <table class="kv">
+      <tr><th>Liczba wypożyczeń</th><td>{{len .Rentals}}</td></tr>
+      <tr><th>Łączna wartość (brutto)</th><td>{{money .Total}}</td></tr>
+      <tr><th>Klient od</th><td>{{date .C.CreatedAt}}</td></tr>
+    </table>
+  </div>
+</div>
+<h2>Historia wypożyczeń</h2>
+{{template "rental-table" .Rentals}}
+{{end}}

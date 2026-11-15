@@ -1,0 +1,20 @@
+# Forgejo only runs the tests. The Windows exe is built on GitHub
+# (.github/workflows/build.yml) – this directory makes Forgejo ignore .github.
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: docker
+    container:
+      image: golang:1.26-bookworm
+    steps:
+      - uses: https://code.forgejo.org/actions/checkout@v4
+      - run: go vet ./...
+      - run: go test ./...
+      - name: Windows build check
+        run: GOOS=windows GOARCH=amd64 go build -o /dev/null ./cmd/wypozyczalnia

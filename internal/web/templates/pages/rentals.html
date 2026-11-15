@@ -1,0 +1,18 @@
+{{define "content"}}
+<div class="head"><h1>Wypożyczenia</h1><a class="btn primary" href="/rentals/new">＋ Nowe wypożyczenie</a></div>
+<form class="searchbar" method="get" action="/rentals">
+  <div class="tabs">
+    <a href="/rentals?status=active" class="{{if eq .Status "active"}}on{{end}}">Aktywne</a>
+    <a href="/rentals?status=reserved" class="{{if eq .Status "reserved"}}on{{end}}">Rezerwacje</a>
+    <a href="/rentals?status=issued" class="{{if eq .Status "issued"}}on{{end}}">Wydane</a>
+    <a href="/rentals?status=returned" class="{{if eq .Status "returned"}}on{{end}}">Zwrócone</a>
+    <a href="/rentals?status=cancelled" class="{{if eq .Status "cancelled"}}on{{end}}">Anulowane</a>
+    <a href="/rentals?status=" class="{{if eq .Status ""}}on{{end}}">Wszystkie</a>
+  </div>
+  <input type="hidden" name="status" value="{{.Status}}">
+  <input type="search" name="q" value="{{.Q}}" placeholder="Szukaj: numer, klient, pojazd, rejestracja…"
+    hx-get="/rentals" hx-trigger="input changed delay:300ms" hx-target="#rows" hx-include="closest form">
+</form>
+<div id="rows">{{template "rental-rows" .}}</div>
+{{end}}
+{{define "rental-rows"}}{{template "rental-table" .Rentals}}{{end}}
