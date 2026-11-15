@@ -69,7 +69,7 @@ func TestPagesAndRentalFlow(t *testing.T) {
 	for _, p := range []string{"/", "/calendar", "/api/calendar", "/search", "/search?start=2030-02-01T10:00&end=2030-02-02T10:00", "/rentals", "/rentals?status=returned",
 		"/rentals/new", "/rentals/1", "/rentals/1/contract", "/rentals/1/protocol", "/rentals/1/return",
 		"/customers", "/customers/1", "/customers/1/edit", "/customers/new", "/vehicles", "/vehicles/1", "/vehicles/1/edit", "/vehicles/new",
-		"/equipment", "/equipment/1/edit", "/prices", "/prices/1/edit", "/settings"} {
+		"/equipment", "/equipment/1/edit", "/prices", "/prices/1/edit", "/settings", "/help", "/help?q=kaucja"} {
 		w := do(s, "GET", p, nil)
 		if w.Code != 200 {
 			t.Errorf("GET %s: %d", p, w.Code)

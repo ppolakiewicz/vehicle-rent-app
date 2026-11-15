@@ -1,0 +1,474 @@
+{{define "content"}}
+<h1>Pomoc</h1>
+<div class="help-search">
+  <input type="search" id="help-q" value="{{.Q}}" placeholder="Czego szukasz? np. kaucja, zwrot, limit km, kopia zapasowa…" autofocus autocomplete="off">
+  <div class="hint" id="help-count"></div>
+</div>
+<nav class="help-toc" id="help-toc">
+  <a href="#start">Pierwsze kroki</a>
+  <a href="#wypozyczenia">Wypożyczenia</a>
+  <a href="#rozliczenia">Rozliczenia i ceny</a>
+  <a href="#kalendarz">Kalendarz i wolne pojazdy</a>
+  <a href="#pulpit">Pulpit</a>
+  <a href="#pojazdy">Pojazdy</a>
+  <a href="#klienci">Klienci</a>
+  <a href="#wyposazenie">Wyposażenie i cennik</a>
+  <a href="#wydruki">Umowa i protokół</a>
+  <a href="#dane">Dane, kopie i aktualizacje</a>
+  <a href="#problemy">Problemy</a>
+</nav>
+
+<div id="help">
+
+<section class="help-group" id="start">
+  <h2>🚀 Pierwsze kroki</h2>
+  <details class="help-item">
+    <summary>Od czego zacząć – przygotowanie programu</summary>
+    <div class="body">
+      <p>Przed pierwszym wypożyczeniem przygotuj dane w tej kolejności:</p>
+      <ol>
+        <li><a href="/settings">Ustawienia</a> – wpisz dane firmy (nazwa, adres, NIP, konto). Pojawią się na umowie.</li>
+        <li><a href="/prices">Cennik</a> – dodaj grupy cenowe, np. „Samochody osobowe”, „Busy”, „Quady”. Każda ma cenę za dobę, za godzinę, za kilometr ponad limit i kaucję.</li>
+        <li><a href="/vehicles">Pojazdy</a> – dodaj pojazdy i każdemu przypisz cennik.</li>
+        <li><a href="/equipment">Wyposażenie</a> – dodaj wyposażenie dodatkowe, np. fotelik, bagażnik dachowy, GPS, z liczbą sztuk.</li>
+      </ol>
+      <p>Klientów nie trzeba dodawać wcześniej – można ich dopisać od razu przy tworzeniu wypożyczenia.</p>
+    </div>
+  </details>
+  <details class="help-item">
+    <summary>Uruchamianie i zamykanie programu</summary>
+    <div class="body">
+      <p>Program uruchamia się dwuklikiem w plik <b>wypozyczalnia.exe</b>. Otwiera się w osobnym oknie (korzysta z przeglądarki Microsoft Edge, ale wygląda jak zwykły program). Internet nie jest potrzebny.</p>
+      <p>Zamknięcie okna (✕) kończy program. Wszystko, co zapisałeś przyciskiem <b>Zapisz</b>, jest już w bazie – nie trzeba niczego dodatkowo zapisywać przed zamknięciem.</p>
+      <p>Jeśli uruchomisz program drugi raz, gdy już działa, otworzy się po prostu kolejne okno tego samego programu.</p>
+    </div>
+  </details>
+  <details class="help-item">
+    <summary>Ostrzeżenie „System Windows ochronił ten komputer”</summary>
+    <div class="body">
+      <p>Przy pierwszym uruchomieniu Windows może wyświetlić niebieskie okno z ostrzeżeniem. Kliknij <b>Więcej informacji</b>, a potem <b>Uruchom mimo to</b>. Pojawia się ono dlatego, że program nie ma płatnego podpisu cyfrowego – to nie jest wirus. Kolejne uruchomienia odbywają się już bez ostrzeżenia.</p>
+    </div>
+  </details>
+  <details class="help-item">
+    <summary>Poruszanie się po programie</summary>
+    <div class="body">
+      <p>Menu po lewej stronie prowadzi do wszystkich części programu. Niebieski przycisk <b>＋ Nowe wypożyczenie</b> jest zawsze pod ręką. Na listach (wypożyczenia, klienci, pojazdy) kliknij wiersz, aby zobaczyć szczegóły.</p>
+      <p>Zielony pasek na górze strony potwierdza wykonaną operację (np. „Zapisano klienta”). Czerwone komunikaty przy polach formularza mówią, co trzeba poprawić.</p>
+    </div>
+  </details>
+</section>
+
+<section class="help-group" id="wypozyczenia">
+  <h2>📄 Wypożyczenia</h2>
+  <details class="help-item">
+    <summary>Jak zrobić nową rezerwację</summary>
+    <div class="body">
+      <ol>
+        <li>Kliknij <b>＋ Nowe wypożyczenie</b>.</li>
+        <li><b>Klient</b> – wybierz z listy (pole „Szukaj klienta” zawęża listę po nazwisku, firmie lub telefonie) albo rozwiń „Nowy klient” i wpisz imię, nazwisko i telefon.</li>
+        <li><b>Pojazd i termin</b> – wybierz pojazd, datę i godzinę od–do oraz sposób rozliczenia: za doby albo za godziny.</li>
+        <li><b>Limit kilometrów</b> – wpisz, jeśli obowiązuje; puste pole oznacza brak limitu.</li>
+        <li><b>Wyposażenie</b> – wpisz liczbę sztuk przy potrzebnych pozycjach.</li>
+        <li>Sprawdź wycenę po prawej stronie i kliknij <b>Zapisz rezerwację</b>.</li>
+      </ol>
+      <p>Rezerwacja dostaje numer umowy, np. <b>UM/2026/0001</b>.</p>
+      <p>Szybciej: w <a href="/search">Wolnych pojazdach</a> podaj termin i kliknij <b>Zarezerwuj</b> przy pojeździe, albo kliknij dwukrotnie puste miejsce w <a href="/calendar">Kalendarzu</a>.</p>
+    </div>
+  </details>
+  <details class="help-item">
+    <summary>Wycena na żywo i sprawdzanie dostępności</summary>
+    <div class="body">
+      <p>Podczas wypełniania formularza po prawej stronie na bieżąco widać wycenę: najem, wyposażenie, sumę netto, VAT i kwotę brutto do zapłaty oraz kaucję.</p>
+      <p>Program od razu sprawdza, czy pojazd jest wolny. Czerwony komunikat <b>⛔ Pojazd zajęty</b> pokazuje, które wypożyczenie lub blokada serwisowa koliduje z terminem. Podobnie <b>⛔ brak wyposażenia</b> oznacza, że w tym czasie wszystkie sztuki są już wypożyczone. Takiej rezerwacji nie da się zapisać – zmień termin, pojazd albo liczbę sztuk.</p>
+      <p>Zielony komunikat <b>✔ Pojazd dostępny</b> oznacza, że można zapisywać.</p>
+    </div>
+  </details>
+  <details class="help-item">
+    <summary>Statusy wypożyczenia</summary>
+    <div class="body">
+      <ul>
+        <li><span class="badge st-reserved">Rezerwacja</span> – zapisane, pojazd jeszcze nie wydany. Można edytować wszystko i anulować.</li>
+        <li><span class="badge st-issued">Wydany</span> – klient ma pojazd. Można zmienić datę zakończenia (przedłużenie), limit km, wyposażenie i uwagi.</li>
+        <li><span class="badge st-overdue">Spóźniony zwrot</span> – wydany pojazd, którego termin zwrotu minął.</li>
+        <li><span class="badge st-returned">Zwrócony</span> – zakończone i rozliczone.</li>
+        <li><span class="badge st-cancelled">Anulowany</span> – rezerwacja odwołana; nie blokuje pojazdu.</li>
+      </ul>
+      <p>Na liście <a href="/rentals">Wypożyczenia</a> zakładki filtrują po statusie, a pole wyszukiwania szuka po numerze, kliencie, pojeździe i numerze rejestracyjnym.</p>
+    </div>
+  </details>
+  <details class="help-item">
+    <summary>Wydanie pojazdu klientowi</summary>
+    <div class="body">
+      <ol>
+        <li>Otwórz rezerwację (np. z Pulpitu – „Do wydania dziś”) i kliknij <b>🔑 Wydaj pojazd</b>.</li>
+        <li>Sprawdź datę i godzinę wydania, stan licznika (podpowiadany z ostatniego zwrotu) i poziom paliwa.</li>
+        <li>Opisz stan pojazdu i istniejące uszkodzenia, np. „rysa na tylnym zderzaku”.</li>
+        <li>Wpisz kwotę kaucji i zaznacz <b>Kaucja pobrana</b>.</li>
+        <li>Kliknij <b>Wydaj pojazd</b>, a następnie wydrukuj <b>Umowę</b> i <b>Protokół</b> do podpisu.</li>
+      </ol>
+      <p>Jeśli klient nie ma wpisanego numeru prawa jazdy albo jego prawo jazdy traci ważność przed końcem najmu, program wyświetli ostrzeżenie.</p>
+    </div>
+  </details>
+  <details class="help-item">
+    <summary>Zwrot pojazdu i rozliczenie</summary>
+    <div class="body">
+      <ol>
+        <li>Otwórz wypożyczenie i kliknij <b>↩ Przyjmij zwrot</b>.</li>
+        <li>Wpisz datę i godzinę zwrotu, stan licznika, poziom paliwa i ewentualne nowe uszkodzenia.</li>
+        <li>Jeśli pobrano kaucję – wpisz, ile oddajesz klientowi. Gdy zatrzymujesz część (np. za szkodę lub brak paliwa), wpisz mniejszą kwotę i opisz powód w uwagach.</li>
+        <li>Po prawej stronie zobaczysz końcowe rozliczenie – razem z dopłatą za przekroczony limit kilometrów i za spóźnienie.</li>
+        <li>Kliknij <b>Zapisz zwrot</b>. Przebieg pojazdu zaktualizuje się automatycznie.</li>
+      </ol>
+      <p>Pomyłkę w zwrocie można poprawić przyciskiem <b>✏️ Popraw zwrot</b> na stronie wypożyczenia.</p>
+    </div>
+  </details>
+  <details class="help-item">
+    <summary>Przedłużenie najmu i późny zwrot</summary>
+    <div class="body">
+      <p><b>Przedłużenie:</b> otwórz wypożyczenie, kliknij <b>✏️ Edytuj</b> i zmień datę „Do”. Program sprawdzi, czy pojazd nie jest w tym czasie zarezerwowany przez kogoś innego, i przeliczy cenę.</p>
+      <p><b>Późny zwrot:</b> jeśli pojazd wróci później niż planowano, przy zwrocie liczony jest faktyczny czas najmu – doliczane są kolejne doby (z uwzględnieniem tolerancji) lub godziny. Wcześniejszy zwrot nie obniża ceny – liczony jest planowany termin.</p>
+    </div>
+  </details>
+  <details class="help-item">
+    <summary>Anulowanie i przywracanie rezerwacji</summary>
+    <div class="body">
+      <p>Rezerwację (pojazd jeszcze nie wydany) anulujesz przyciskiem <b>Anuluj rezerwację</b> na stronie wypożyczenia. Anulowana rezerwacja zostaje w historii, ale nie blokuje pojazdu ani wyposażenia.</p>
+      <p>Przycisk <b>Przywróć rezerwację</b> cofa anulowanie – o ile pojazd jest w tym terminie nadal wolny.</p>
+      <p>Wypożyczeń nie usuwa się z programu – dzięki temu numeracja umów i historia klienta pozostają kompletne.</p>
+    </div>
+  </details>
+</section>
+
+<section class="help-group" id="rozliczenia">
+  <h2>💰 Rozliczenia i ceny</h2>
+  <details class="help-item">
+    <summary>Rozliczenie za doby i za godziny</summary>
+    <div class="body">
+      <p><b>Za doby:</b> liczy się każda rozpoczęta doba (24 godziny od godziny wydania). Przykład: od 1.12 godz. 10:00 do 4.12 godz. 10:00 to 3 doby; do 4.12 godz. 12:00 – już 4 doby.</p>
+      <p><b>Tolerancja:</b> spóźnienie do 60 minut (do zmiany w <a href="/settings">Ustawieniach</a>) nie nalicza kolejnej doby. Do 4.12 godz. 10:30 to nadal 3 doby.</p>
+      <p><b>Za godziny:</b> liczy się każda rozpoczęta godzina, bez tolerancji. Od 9:00 do 12:30 to 4 godziny. Wygodne np. dla quadów.</p>
+      <p>Sposób rozliczenia wybierasz przy każdym wypożyczeniu.</p>
+    </div>
+  </details>
+  <details class="help-item">
+    <summary>Ceny netto i VAT</summary>
+    <div class="body">
+      <p>Wszystkie ceny w cenniku i przy wyposażeniu wpisuje się <b>netto</b>. Program sumuje pozycje i dolicza VAT (domyślnie 23%) – na wycenie widać sumę netto, kwotę VAT i kwotę brutto do zapłaty.</p>
+      <p>Stawkę VAT zmienisz w <a href="/settings">Ustawieniach</a>. Program nie wystawia faktur – kwoty z rozliczenia przepisz do swojego programu do faktur.</p>
+    </div>
+  </details>
+  <details class="help-item">
+    <summary>Limit kilometrów i dopłata za przekroczenie</summary>
+    <div class="body">
+      <p>Limit kilometrów jest <b>opcjonalny</b> i dotyczy <b>całego najmu</b> (nie każdego dnia). Wpisujesz go przy wypożyczeniu; puste pole oznacza brak limitu.</p>
+      <p>Przy zwrocie program liczy przejechane kilometry (licznik przy zwrocie minus licznik przy wydaniu). Za każdy kilometr ponad limit dolicza stawkę „za km ponad limit” z cennika pojazdu. Przykład: limit 300 km, przejechano 420 km, stawka 0,80 zł → dopłata 120 km × 0,80 zł = 96 zł netto.</p>
+    </div>
+  </details>
+  <details class="help-item">
+    <summary>Kaucja</summary>
+    <div class="body">
+      <p>Wysokość kaucji podpowiada cennik pojazdu; przy wydaniu możesz ją zmienić. Kaucja jest pokazywana osobno i <b>nie zawiera VAT</b> – nie wlicza się do kwoty do zapłaty.</p>
+      <p>Przy zwrocie wpisujesz, ile kaucji oddajesz. Różnica jest widoczna jako „zatrzymano” na stronie wypożyczenia i w protokole zwrotu.</p>
+    </div>
+  </details>
+  <details class="help-item">
+    <summary>Kiedy zmiana cennika wpływa na wypożyczenia</summary>
+    <div class="body">
+      <p>Dopóki wypożyczenie jest <b>rezerwacją</b>, jego ceny pochodzą z aktualnego cennika – po zmianie cennika rezerwacje przeliczą się automatycznie.</p>
+      <p>W chwili <b>wydania pojazdu</b> ceny są zamrażane. Późniejsze zmiany cennika nie zmieniają już wydanych ani zakończonych wypożyczeń ani wydrukowanych umów.</p>
+    </div>
+  </details>
+</section>
+
+<section class="help-group" id="kalendarz">
+  <h2>📅 Kalendarz i wolne pojazdy</h2>
+  <details class="help-item">
+    <summary>Kalendarz – oś czasu wszystkich pojazdów</summary>
+    <div class="body">
+      <p>Każdy wiersz to jeden pojazd, a paski to wypożyczenia i blokady. Kolory: <span class="badge st-reserved">rezerwacja</span> <span class="badge st-issued">wydany</span> <span class="badge st-overdue">spóźniony zwrot</span> <span class="badge st-returned">zwrócony</span> <span class="badge st-blocked">blokada / serwis</span>.</p>
+      <ul>
+        <li>Przyciski <b>Dziś / Tydzień / Miesiąc / 3 miesiące</b> zmieniają widoczny okres.</li>
+        <li>Kółkiem myszy przybliżasz i oddalasz, a przeciągając – przesuwasz kalendarz w czasie.</li>
+        <li>Kliknięcie paska otwiera wypożyczenie.</li>
+        <li>Dwuklik w puste miejsce w wierszu pojazdu tworzy nową rezerwację tego pojazdu od wskazanego dnia.</li>
+      </ul>
+    </div>
+  </details>
+  <details class="help-item">
+    <summary>Wyszukiwanie wolnych pojazdów</summary>
+    <div class="body">
+      <p>W <a href="/search">Wolnych pojazdach</a> podaj termin, opcjonalnie typ pojazdu (np. Quad) i sposób rozliczenia. Program pokaże tylko pojazdy wolne w całym tym okresie, z szacunkową ceną brutto (bez wyposażenia i dopłat za km). Przycisk <b>Zarezerwuj</b> otwiera formularz z wypełnionym pojazdem i terminem.</p>
+    </div>
+  </details>
+</section>
+
+<section class="help-group" id="pulpit">
+  <h2>🏠 Pulpit</h2>
+  <details class="help-item">
+    <summary>Co pokazuje Pulpit</summary>
+    <div class="body">
+      <ul>
+        <li><b>Spóźnione zwroty</b> – wydane pojazdy po terminie (czerwona ramka na górze).</li>
+        <li><b>Do wydania dziś</b> – rezerwacje zaczynające się dziś lub wcześniej, a jeszcze nie wydane, z przyciskiem <b>Wydaj</b>.</li>
+        <li><b>Zwroty dziś</b> – pojazdy, które mają wrócić do końca dnia.</li>
+        <li><b>Najbliższe rezerwacje</b> – na kolejne 7 dni.</li>
+        <li><b>Przeglądy i ubezpieczenia</b> – terminy wygasające w ciągu 30 dni (liczbę dni zmienisz w Ustawieniach) i już przeterminowane.</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<section class="help-group" id="pojazdy">
+  <h2>🚙 Pojazdy</h2>
+  <details class="help-item">
+    <summary>Dodawanie i edycja pojazdu</summary>
+    <div class="body">
+      <p>W <a href="/vehicles">Pojazdach</a> kliknij <b>＋ Dodaj pojazd</b>. Wymagane są typ, marka i cennik; pozostałe dane (model, numer rejestracyjny, VIN, rok, kolor, przebieg) są dla porządku i trafiają na umowę.</p>
+      <p>Wpisz też daty <b>przeglądu</b>, <b>OC</b> i <b>AC</b> – program przypomni o nich na Pulpicie.</p>
+      <p>Przebieg aktualizuje się sam po każdym zwrocie pojazdu.</p>
+    </div>
+  </details>
+  <details class="help-item">
+    <summary>Blokada pojazdu – serwis, naprawa</summary>
+    <div class="body">
+      <p>Na stronie pojazdu w sekcji <b>Blokady</b> podaj okres i powód (np. „Wymiana opon”). W tym czasie pojazdu nie da się zarezerwować, a w kalendarzu blokada jest widoczna jako pomarańczowy pasek w paski.</p>
+      <p>Jeśli w okresie blokady istnieje już wypożyczenie, program ostrzeże – przenieś je wtedy na inny pojazd (Edytuj → zmień pojazd).</p>
+    </div>
+  </details>
+  <details class="help-item">
+    <summary>Wycofanie i usuwanie pojazdu</summary>
+    <div class="body">
+      <p>Pojazd, który był już wypożyczany, nie może zostać usunięty (zachowuje się historia). Zamiast tego w edycji odznacz <b>Pojazd aktywny</b> – zniknie z formularzy i kalendarza, ale zostanie w historii. Pojazd bez wypożyczeń można usunąć przyciskiem <b>Usuń</b>.</p>
+    </div>
+  </details>
+</section>
+
+<section class="help-group" id="klienci">
+  <h2>👤 Klienci</h2>
+  <details class="help-item">
+    <summary>Dodawanie klienta – osoba prywatna lub firma</summary>
+    <div class="body">
+      <p>W <a href="/customers">Klientach</a> kliknij <b>＋ Dodaj klienta</b> i wybierz <b>Osoba prywatna</b> lub <b>Firma</b>. Dla firmy podaj nazwę i NIP oraz osobę, która podpisuje umowę.</p>
+      <p>Na umowę trafiają: imię i nazwisko, adres, PESEL, numer dowodu lub paszportu, numer prawa jazdy i telefon – warto je uzupełnić przed wydaniem pojazdu.</p>
+      <p>Klienta można też dodać skrótowo w formularzu wypożyczenia („Nowy klient”), a resztę danych uzupełnić później.</p>
+    </div>
+  </details>
+  <details class="help-item">
+    <summary>Wyszukiwanie klienta i historia wypożyczeń</summary>
+    <div class="body">
+      <p>Pole wyszukiwania na liście klientów szuka po imieniu, nazwisku, nazwie firmy, NIP, PESEL, telefonie, e-mailu i numerze dokumentu – wyniki zmieniają się w trakcie pisania.</p>
+      <p>Strona klienta pokazuje jego dane, liczbę i łączną wartość wypożyczeń oraz pełną historię. Przycisk <b>＋ Nowe wypożyczenie</b> tworzy rezerwację z tym klientem.</p>
+    </div>
+  </details>
+  <details class="help-item">
+    <summary>Ważność prawa jazdy</summary>
+    <div class="body">
+      <p>Jeśli wpiszesz datę ważności prawa jazdy, program ostrzeże na stronie klienta, gdy prawo jazdy straciło ważność, oraz przy wydaniu pojazdu, gdy wygasa przed końcem najmu.</p>
+    </div>
+  </details>
+  <details class="help-item">
+    <summary>Usuwanie klienta</summary>
+    <div class="body">
+      <p>Klienta, który ma wypożyczenia, nie można usunąć – jego dane są potrzebne w historii i na umowach. Klienta bez wypożyczeń usuniesz przyciskiem <b>Usuń</b> na jego stronie.</p>
+    </div>
+  </details>
+</section>
+
+<section class="help-group" id="wyposazenie">
+  <h2>🧰 Wyposażenie i cennik</h2>
+  <details class="help-item">
+    <summary>Wyposażenie dodatkowe (fotelik, bagażnik…)</summary>
+    <div class="body">
+      <p>W <a href="/equipment">Wyposażeniu</a> dodaj pozycję z nazwą, <b>liczbą posiadanych sztuk</b> i ceną netto. Cena jest <b>jednorazowa</b> za sztukę – nie zależy od długości najmu.</p>
+      <p>Program pilnuje, by w danym terminie nie wypożyczyć więcej sztuk, niż jest w magazynie. Kolumna „Wolnych teraz” pokazuje, ile sztuk jest w tej chwili dostępnych.</p>
+      <p>Wyposażenie, którego już nie oferujesz, oznacz jako nieaktywne zamiast usuwać.</p>
+    </div>
+  </details>
+  <details class="help-item">
+    <summary>Cennik – grupy cenowe pojazdów</summary>
+    <div class="body">
+      <p>Cennik to grupa cen wspólna dla wielu pojazdów, np. „Samochody osobowe – klasa B”. Każda grupa ma: cenę za dobę, cenę za godzinę, cenę za kilometr ponad limit (wszystkie netto) oraz kaucję.</p>
+      <p>Zmiana cen w grupie dotyczy od razu wszystkich jej pojazdów (w rezerwacjach – patrz „Kiedy zmiana cennika wpływa na wypożyczenia”). Cennika przypisanego do pojazdów nie można usunąć.</p>
+    </div>
+  </details>
+</section>
+
+<section class="help-group" id="wydruki">
+  <h2>🖨 Umowa i protokół</h2>
+  <details class="help-item">
+    <summary>Drukowanie umowy najmu i protokołu</summary>
+    <div class="body">
+      <p>Na stronie wypożyczenia kliknij <b>🖨 Umowa</b> lub <b>🖨 Protokół</b> (protokół jest dostępny po wydaniu pojazdu). Dokument otworzy się w nowym oknie – kliknij <b>Drukuj / zapisz PDF</b>.</p>
+      <p>Aby zapisać PDF zamiast drukować, w oknie drukowania wybierz drukarkę <b>Zapisz jako PDF</b> (lub „Microsoft Print to PDF”).</p>
+      <p><b>Umowa</b> zawiera strony, pojazd, wyposażenie, okres najmu, limit km, rozliczenie z VAT, kaucję i warunki najmu. <b>Protokół</b> ma część wydania (licznik, paliwo, stan) i część zwrotu – przed zwrotem pola zwrotu są puste do ręcznego wypełnienia.</p>
+    </div>
+  </details>
+  <details class="help-item">
+    <summary>Zmiana danych firmy i warunków umowy</summary>
+    <div class="body">
+      <p>Nazwę, adres, NIP, telefon, e-mail, numer konta i miejscowość zawarcia umowy ustawisz w <a href="/settings">Ustawieniach</a>. Tam też jest pole <b>Warunki umowy</b> – tekst drukowany w paragrafie „Warunki najmu”. Przygotowany jest przykładowy tekst; dostosuj go do swojego regulaminu.</p>
+      <p>W Ustawieniach zmienisz też przedrostek numeru umowy (np. „UM” → UM/2026/0001). Numeracja zaczyna się od 1 w każdym roku.</p>
+    </div>
+  </details>
+</section>
+
+<section class="help-group" id="dane">
+  <h2>💾 Dane, kopie zapasowe i aktualizacje</h2>
+  <details class="help-item">
+    <summary>Gdzie są zapisane dane</summary>
+    <div class="body">
+      <p>Wszystkie dane są na tym komputerze, w folderze <b>Dokumenty\Wypożyczalnia</b>:</p>
+      <ul>
+        <li><b>wypozyczalnia.db</b> – baza danych (pojazdy, klienci, wypożyczenia, ustawienia),</li>
+        <li><b>kopie</b> – kopie zapasowe,</li>
+        <li><b>dziennik.log</b> – dziennik programu, przydatny przy zgłaszaniu błędów.</li>
+      </ul>
+      <p>Folder otworzysz przyciskiem <b>📂 Otwórz folder z danymi</b> w <a href="/settings">Ustawieniach</a>.</p>
+    </div>
+  </details>
+  <details class="help-item">
+    <summary>Kopie zapasowe</summary>
+    <div class="body">
+      <p>Program robi kopię bazy <b>automatycznie przy każdym uruchomieniu</b> i przechowuje 30 ostatnich. Kopię na żądanie zrobisz przyciskiem <b>💾 Zrób kopię teraz</b> w Ustawieniach.</p>
+      <p>Kopie leżą na tym samym dysku – przy awarii komputera przepadną razem z bazą. <b>Co jakiś czas skopiuj folder „kopie” na pendrive lub do chmury</b> (np. OneDrive, Google Drive).</p>
+    </div>
+  </details>
+  <details class="help-item">
+    <summary>Przywracanie danych z kopii</summary>
+    <div class="body">
+      <ol>
+        <li>Zamknij program.</li>
+        <li>Otwórz folder <b>Dokumenty\Wypożyczalnia</b>. Dla bezpieczeństwa zmień nazwę obecnego pliku <b>wypozyczalnia.db</b> np. na <b>wypozyczalnia-stara.db</b>.</li>
+        <li>Z folderu <b>kopie</b> skopiuj wybraną kopię (nazwa zawiera datę i godzinę) do folderu Wypożyczalnia i zmień jej nazwę na <b>wypozyczalnia.db</b>.</li>
+        <li>Uruchom program.</li>
+      </ol>
+    </div>
+  </details>
+  <details class="help-item">
+    <summary>Przeniesienie programu na inny komputer</summary>
+    <div class="body">
+      <p>Skopiuj plik <b>wypozyczalnia.exe</b> oraz cały folder <b>Dokumenty\Wypożyczalnia</b> na nowy komputer – folder umieść w Dokumentach. Na starym komputerze program powinien być wtedy zamknięty.</p>
+    </div>
+  </details>
+  <details class="help-item">
+    <summary>Aktualizacja do nowej wersji</summary>
+    <div class="body">
+      <p>Pobierz nowy plik <b>wypozyczalnia.exe</b>, zamknij program i zastąp nim stary plik. Dane zostają – przy pierwszym uruchomieniu nowa wersja sama dostosuje bazę (i wcześniej zrobi kopię zapasową). Numer wersji widać na dole menu po lewej.</p>
+    </div>
+  </details>
+</section>
+
+<section class="help-group" id="problemy">
+  <h2>🛠 Problemy</h2>
+  <details class="help-item">
+    <summary>Program się nie otwiera</summary>
+    <div class="body">
+      <ul>
+        <li>Odczekaj kilkanaście sekund – pierwsze uruchomienie trwa dłużej.</li>
+        <li>Sprawdź, czy okno nie otworzyło się za innymi oknami (pasek zadań).</li>
+        <li>Jeśli Windows pokazał ostrzeżenie – patrz „Ostrzeżenie System Windows ochronił ten komputer”.</li>
+        <li>Jeśli pojawi się okienko z błędem, zrób jego zdjęcie i dołącz plik <b>dziennik.log</b> z folderu Dokumenty\Wypożyczalnia.</li>
+      </ul>
+    </div>
+  </details>
+  <details class="help-item">
+    <summary>Przypadkowo zamknąłem okno</summary>
+    <div class="body">
+      <p>Nic się nie stało – zapisane dane są w bazie. Uruchom program ponownie. Utracony może być tylko formularz, który był w trakcie wypełniania i nie został zapisany.</p>
+    </div>
+  </details>
+  <details class="help-item">
+    <summary>Nie mogę zapisać rezerwacji</summary>
+    <div class="body">
+      <p>Przeczytaj czerwone komunikaty w formularzu i w wycenie. Najczęstsze przyczyny: pojazd zajęty w tym terminie, brak wolnych sztuk wyposażenia, data „Do” wcześniejsza niż „Od”, brak wybranego klienta lub pojazdu. Sprawdź też <b>przerwę między wynajmami</b> w Ustawieniach – jeśli jest ustawiona, pojazd musi mieć tyle wolnego czasu przed i po innym najmie.</p>
+    </div>
+  </details>
+  <details class="help-item">
+    <summary>Wycena wydaje się zła</summary>
+    <div class="body">
+      <p>Sprawdź: sposób rozliczenia (doby czy godziny), dokładne godziny od–do (każda rozpoczęta doba/godzina się liczy), tolerancję i stawkę VAT w Ustawieniach oraz ceny w cenniku pojazdu. Pamiętaj, że po wydaniu pojazdu ceny są zamrożone – zmiana cennika już ich nie zmieni.</p>
+    </div>
+  </details>
+</div>
+<p class="help-empty" id="help-empty" hidden>Nic nie znaleziono. Spróbuj innego słowa, np. „zwrot”, „kaucja”, „cennik”.</p>
+</div>
+
+<script>
+(function () {
+  var input = document.getElementById('help-q');
+  var items = Array.prototype.slice.call(document.querySelectorAll('#help details.help-item'));
+  var groups = Array.prototype.slice.call(document.querySelectorAll('#help .help-group'));
+  var empty = document.getElementById('help-empty');
+  var count = document.getElementById('help-count');
+  var toc = document.getElementById('help-toc');
+
+  // Polish letters are matched without diacritics: "wypozyczenie" finds "wypożyczenie".
+  function norm(s) { return s.toLowerCase().replace(/ł/g, 'l').normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+
+  items.forEach(function (it) {
+    it._text = norm(it.textContent);
+    it._html = it.innerHTML;
+  });
+
+  // Wrap matches in <mark> inside text nodes only (keeps links and markup intact).
+  function highlight(root, words) {
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+    var nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(function (node) {
+      var text = node.nodeValue, n = norm(text), ranges = [];
+      words.forEach(function (w) {
+        var i = 0;
+        while ((i = n.indexOf(w, i)) >= 0) { ranges.push([i, i + w.length]); i += w.length; }
+      });
+      if (!ranges.length) return;
+      ranges.sort(function (a, b) { return a[0] - b[0]; });
+      var frag = document.createDocumentFragment(), pos = 0;
+      ranges.forEach(function (r) {
+        if (r[0] < pos) return;
+        frag.appendChild(document.createTextNode(text.slice(pos, r[0])));
+        var m = document.createElement('mark');
+        m.textContent = text.slice(r[0], r[1]);
+        frag.appendChild(m);
+        pos = r[1];
+      });
+      frag.appendChild(document.createTextNode(text.slice(pos)));
+      node.parentNode.replaceChild(frag, node);
+    });
+  }
+
+  // Simple Polish stemming: cut the ending so "kaucja" also finds "kaucję", "kaucji".
+  function stem(w) { return w.length >= 7 ? w.slice(0, -2) : w.length >= 5 ? w.slice(0, -1) : w; }
+
+  var saved = null; // open/closed state from before the search, restored when it is cleared
+  function run() {
+    var words = norm(input.value).split(/\s+/).filter(function (w) { return w.length > 1; }).map(stem);
+    if (words.length && saved === null) saved = items.map(function (it) { return it.open; });
+    var shown = 0;
+    items.forEach(function (it, i) {
+      it.innerHTML = it._html;
+      if (!words.length) {
+        it.hidden = false;
+        if (saved) it.open = saved[i];
+        return;
+      }
+      var match = words.every(function (w) { return it._text.indexOf(w) >= 0; });
+      it.hidden = !match;
+      it.open = match;
+      if (match) { highlight(it, words); shown++; }
+    });
+    if (!words.length) saved = null;
+    groups.forEach(function (g) {
+      g.hidden = !g.querySelector('details.help-item:not([hidden])');
+    });
+    empty.hidden = !words.length || shown > 0;
+    toc.hidden = words.length > 0;
+    count.textContent = words.length && shown ? 'Znaleziono: ' + shown : '';
+  }
+
+  var t;
+  input.addEventListener('input', function () { clearTimeout(t); t = setTimeout(run, 150); });
+  if (input.value) run();
+})();
+</script>
+{{end}}

@@ -164,3 +164,7 @@ func (s *Server) search(w http.ResponseWriter, r *http.Request) {
 	data["Searched"] = true
 	s.render(w, r, "search.html", data)
 }
+
+func (s *Server) help(w http.ResponseWriter, r *http.Request) {
+	s.render(w, r, "help.html", D{"Title": "Pomoc", "Q": r.URL.Query().Get("q")})
+}

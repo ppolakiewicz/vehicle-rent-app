@@ -182,6 +182,7 @@ func (s *Server) routes() {
 	m.HandleFunc("POST /prices/{id}", s.priceSave)
 	m.HandleFunc("POST /prices/{id}/delete", s.priceDelete)
 
+	m.HandleFunc("GET /help", s.help)
 	m.HandleFunc("GET /settings", s.settingsForm)
 	m.HandleFunc("POST /settings", s.settingsSave)
 	m.HandleFunc("POST /settings/backup", s.settingsBackup)
