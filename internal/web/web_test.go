@@ -54,7 +54,8 @@ func TestPagesAndRentalFlow(t *testing.T) {
 		{"/vehicles", url.Values{"kind": {"Quad"}, "make": {"CF Moto"}, "category_id": {"1"}, "active": {"1"}, "mileage": {"100"}}, 303},
 		{"/equipment", url.Values{"name": {"Fotelik"}, "stock": {"1"}, "price": {"30"}, "active": {"1"}}, 303},
 		{"/customers", url.Values{"kind": {"person"}, "first_name": {"Anna"}, "last_name": {"Nowak"}}, 303},
-		{"/rentals", url.Values{"customer_id": {"1"}, "vehicle_id": {"1"}, "start_at": {"2030-01-01T10:00"}, "end_at": {"2030-01-02T10:00"}, "billing": {"day"}, "km_limit": {"200"}, "eq_1": {"1"}}, 303},
+		{"/rentals", url.Values{"customer_id": {"1"}, "vehicle_id": {"1"}, "start_at": {"2030-01-01T10:00"}, "end_at": {"2030-01-02T10:00"}, "billing": {"day"}, "km_limit": {"200"}, "eq_1": {"1"},
+			"day_rate": {"150"}, "km_rate": {"0,80"}, "deposit": {"1000"}, "eqp_1": {"30"}}, 303},
 		// same vehicle, overlapping -> form shown again with error
 		{"/rentals", url.Values{"customer_id": {"1"}, "vehicle_id": {"1"}, "start_at": {"2030-01-01T12:00"}, "end_at": {"2030-01-03T10:00"}, "billing": {"day"}}, 200},
 		{"/rentals/1/issue", url.Values{"issued_at": {"2030-01-01T10:00"}, "mileage_out": {"100"}, "fuel_out": {"Pełny"}, "deposit": {"1000"}, "deposit_collected": {"1"}}, 303},
@@ -100,5 +101,56 @@ func TestSecurityChecks(t *testing.T) {
 	s.ServeHTTP(w, req)
 	if w.Code != http.StatusForbidden {
 		t.Errorf("foreign origin: %d", w.Code)
+	}
+}
+
+func TestManualPrices(t *testing.T) {
+	s := newServer(t)
+	post := func(path string, form url.Values) {
+		t.Helper()
+		if w := do(s, "POST", path, form); w.Code != 303 {
+			t.Fatalf("POST %s: %d %s", path, w.Code, w.Body.String())
+		}
+	}
+	post("/prices", url.Values{"name": {"Quady"}, "day_rate": {"300"}, "hour_rate": {"80"}, "km_rate": {"1,50"}, "deposit": {"1500"}})
+	post("/vehicles", url.Values{"kind": {"Quad"}, "make": {"CF Moto"}, "category_id": {"1"}, "active": {"1"}})
+	post("/vehicles", url.Values{"kind": {"Bus"}, "make": {"Ford"}, "active": {"1"}}) // no price list
+	post("/customers", url.Values{"kind": {"person"}, "last_name": {"Nowak"}})
+
+	// a new rental for a vehicle with a price list starts with its prices
+	body := do(s, "GET", "/rentals/new?vehicle=1", nil).Body.String()
+	if !strings.Contains(body, `name="day_rate" value="300,00"`) || !strings.Contains(body, `name="deposit" value="1500,00"`) {
+		t.Error("prices not filled from the price list")
+	}
+	// ...and without one, the fields are empty
+	body = do(s, "GET", "/rentals/new?vehicle=2", nil).Body.String()
+	if !strings.Contains(body, `name="day_rate" value=""`) {
+		t.Error("vehicle without price list should start with empty prices")
+	}
+
+	// typed prices win over the price list: 2 days x 99 = 198 net, 243,54 gross
+	post("/rentals", url.Values{"customer_id": {"1"}, "vehicle_id": {"1"}, "start_at": {"2030-01-01T10:00"}, "end_at": {"2030-01-03T10:00"},
+		"billing": {"day"}, "day_rate": {"99"}, "deposit": {"500"}})
+	// a vehicle without a price list, hourly: 3 h x 50 = 150 net, 184,50 gross
+	post("/rentals", url.Values{"customer_id": {"1"}, "vehicle_id": {"2"}, "start_at": {"2030-01-01T10:00"}, "end_at": {"2030-01-01T12:30"},
+		"billing": {"hour"}, "hour_rate": {"50"}})
+	// changing the price list does not change existing rentals
+	post("/prices/1", url.Values{"name": {"Quady"}, "day_rate": {"999"}})
+	if b := do(s, "GET", "/rentals/1", nil).Body.String(); !strings.Contains(b, "243,54") || !strings.Contains(b, "500,00") {
+		t.Error("rental 1 should keep typed prices")
+	}
+	if b := do(s, "GET", "/rentals/2", nil).Body.String(); !strings.Contains(b, "184,50") {
+		t.Error("rental 2 total")
+	}
+	// deleting the price list keeps the vehicle
+	post("/prices/1/delete", url.Values{})
+	if w := do(s, "GET", "/vehicles/1", nil); w.Code != 200 || !strings.Contains(w.Body.String(), "Brak domyślnego cennika") {
+		t.Errorf("vehicle page after deleting its price list: %d", w.Code)
+	}
+	// a bad amount is reported, not saved as zero
+	w := do(s, "POST", "/rentals", url.Values{"customer_id": {"1"}, "vehicle_id": {"2"}, "start_at": {"2030-02-01T10:00"}, "end_at": {"2030-02-02T10:00"},
+		"billing": {"day"}, "day_rate": {"abc"}})
+	if w.Code != 200 || !strings.Contains(w.Body.String(), "Nieprawidłowa kwota") {
+		t.Errorf("bad price accepted: %d", w.Code)
 	}
 }

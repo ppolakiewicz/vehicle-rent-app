@@ -28,8 +28,8 @@
       <p>Przed pierwszym wypożyczeniem przygotuj dane w tej kolejności:</p>
       <ol>
         <li><a href="/settings">Ustawienia</a> – wpisz dane firmy (nazwa, adres, NIP, konto). Pojawią się na umowie.</li>
-        <li><a href="/prices">Cennik</a> – dodaj grupy cenowe, np. „Samochody osobowe”, „Busy”, „Quady”. Każda ma cenę za dobę, za godzinę, za kilometr ponad limit i kaucję.</li>
-        <li><a href="/vehicles">Pojazdy</a> – dodaj pojazdy i każdemu przypisz cennik.</li>
+        <li><a href="/vehicles">Pojazdy</a> – dodaj pojazdy.</li>
+        <li><a href="/prices">Cennik</a> (opcjonalnie) – dodaj szablony cen, np. „Samochody osobowe”, „Busy”, „Quady”, i przypisz je pojazdom. Ceny z szablonu same podpowiadają się przy wypożyczeniu, ale nie są obowiązkowe – ceny można też wpisywać ręcznie.</li>
         <li><a href="/equipment">Wyposażenie</a> – dodaj wyposażenie dodatkowe, np. fotelik, bagażnik dachowy, GPS, z liczbą sztuk.</li>
       </ol>
       <p>Klientów nie trzeba dodawać wcześniej – można ich dopisać od razu przy tworzeniu wypożyczenia.</p>
@@ -68,7 +68,8 @@
         <li><b>Klient</b> – wybierz z listy (pole „Szukaj klienta” zawęża listę po nazwisku, firmie lub telefonie) albo rozwiń „Nowy klient” i wpisz imię, nazwisko i telefon.</li>
         <li><b>Pojazd i termin</b> – wybierz pojazd, datę i godzinę od–do oraz sposób rozliczenia: za doby albo za godziny.</li>
         <li><b>Limit kilometrów</b> – wpisz, jeśli obowiązuje; puste pole oznacza brak limitu.</li>
-        <li><b>Wyposażenie</b> – wpisz liczbę sztuk przy potrzebnych pozycjach.</li>
+        <li><b>Ceny</b> – wczytają się z cennika pojazdu (jeśli ma przypisany). Możesz wybrać inny cennik albo wpisać ceny ręcznie: za dobę lub godzinę, za km ponad limit i kaucję.</li>
+        <li><b>Wyposażenie</b> – wpisz liczbę sztuk przy potrzebnych pozycjach; cenę za sztukę też możesz zmienić.</li>
         <li>Sprawdź wycenę po prawej stronie i kliknij <b>Zapisz rezerwację</b>.</li>
       </ol>
       <p>Rezerwacja dostaje numer umowy, np. <b>UM/2026/0001</b>.</p>
@@ -161,21 +162,23 @@
     <summary>Limit kilometrów i dopłata za przekroczenie</summary>
     <div class="body">
       <p>Limit kilometrów jest <b>opcjonalny</b> i dotyczy <b>całego najmu</b> (nie każdego dnia). Wpisujesz go przy wypożyczeniu; puste pole oznacza brak limitu.</p>
-      <p>Przy zwrocie program liczy przejechane kilometry (licznik przy zwrocie minus licznik przy wydaniu). Za każdy kilometr ponad limit dolicza stawkę „za km ponad limit” z cennika pojazdu. Przykład: limit 300 km, przejechano 420 km, stawka 0,80 zł → dopłata 120 km × 0,80 zł = 96 zł netto.</p>
+      <p>Przy zwrocie program liczy przejechane kilometry (licznik przy zwrocie minus licznik przy wydaniu). Za każdy kilometr ponad limit dolicza stawkę „za km ponad limit” wpisaną przy wypożyczeniu. Przykład: limit 300 km, przejechano 420 km, stawka 0,80 zł → dopłata 120 km × 0,80 zł = 96 zł netto.</p>
     </div>
   </details>
   <details class="help-item">
     <summary>Kaucja</summary>
     <div class="body">
-      <p>Wysokość kaucji podpowiada cennik pojazdu; przy wydaniu możesz ją zmienić. Kaucja jest pokazywana osobno i <b>nie zawiera VAT</b> – nie wlicza się do kwoty do zapłaty.</p>
+      <p>Kaucję wpisujesz przy wypożyczeniu (podpowiada ją cennik pojazdu); przy wydaniu pojazdu możesz ją jeszcze zmienić. Kaucja jest pokazywana osobno i <b>nie zawiera VAT</b> – nie wlicza się do kwoty do zapłaty.</p>
       <p>Przy zwrocie wpisujesz, ile kaucji oddajesz. Różnica jest widoczna jako „zatrzymano” na stronie wypożyczenia i w protokole zwrotu.</p>
     </div>
   </details>
   <details class="help-item">
-    <summary>Kiedy zmiana cennika wpływa na wypożyczenia</summary>
+    <summary>Ceny przy wypożyczeniu – ręcznie lub z cennika</summary>
     <div class="body">
-      <p>Dopóki wypożyczenie jest <b>rezerwacją</b>, jego ceny pochodzą z aktualnego cennika – po zmianie cennika rezerwacje przeliczą się automatycznie.</p>
-      <p>W chwili <b>wydania pojazdu</b> ceny są zamrażane. Późniejsze zmiany cennika nie zmieniają już wydanych ani zakończonych wypożyczeń ani wydrukowanych umów.</p>
+      <p>Każde wypożyczenie ma <b>własne ceny</b>, widoczne w formularzu w sekcji <b>3. Ceny (netto)</b>: cena za dobę (albo za godzinę – zależnie od sposobu rozliczenia), za kilometr ponad limit i kaucja. Przy wyposażeniu jest też cena za sztukę.</p>
+      <p><b>Cennik jest tylko podpowiedzią.</b> Gdy wybierzesz pojazd z przypisanym cennikiem, jego ceny wpiszą się same. Możesz też wybrać dowolny cennik z listy „Wczytaj ceny z cennika” albo po prostu wpisać ceny ręcznie – np. cenę promocyjną lub uzgodnioną z klientem.</p>
+      <p>Ceny wpisane ręcznie nie zostaną nadpisane, gdy zmienisz pojazd. Aby wrócić do cen z cennika, wybierz go z listy.</p>
+      <p>Zmiana lub usunięcie cennika <b>nie zmienia</b> istniejących wypożyczeń. Ceny wypożyczenia zmienisz tylko w jego edycji (✏️ Edytuj).</p>
     </div>
   </details>
 </section>
@@ -223,7 +226,7 @@
   <details class="help-item">
     <summary>Dodawanie i edycja pojazdu</summary>
     <div class="body">
-      <p>W <a href="/vehicles">Pojazdach</a> kliknij <b>＋ Dodaj pojazd</b>. Wymagane są typ, marka i cennik; pozostałe dane (model, numer rejestracyjny, VIN, rok, kolor, przebieg) są dla porządku i trafiają na umowę.</p>
+      <p>W <a href="/vehicles">Pojazdach</a> kliknij <b>＋ Dodaj pojazd</b>. Wymagane są tylko typ i marka. Możesz przypisać <b>domyślny cennik</b> – jego ceny podpowiedzą się przy wypożyczeniu tego pojazdu. Pozostałe dane (model, numer rejestracyjny, VIN, rok, kolor, przebieg) są dla porządku i trafiają na umowę.</p>
       <p>Wpisz też daty <b>przeglądu</b>, <b>OC</b> i <b>AC</b> – program przypomni o nich na Pulpicie.</p>
       <p>Przebieg aktualizuje się sam po każdym zwrocie pojazdu.</p>
     </div>
@@ -279,16 +282,17 @@
   <details class="help-item">
     <summary>Wyposażenie dodatkowe (fotelik, bagażnik…)</summary>
     <div class="body">
-      <p>W <a href="/equipment">Wyposażeniu</a> dodaj pozycję z nazwą, <b>liczbą posiadanych sztuk</b> i ceną netto. Cena jest <b>jednorazowa</b> za sztukę – nie zależy od długości najmu.</p>
+      <p>W <a href="/equipment">Wyposażeniu</a> dodaj pozycję z nazwą, <b>liczbą posiadanych sztuk</b> i ceną netto. Cena jest <b>jednorazowa</b> za sztukę – nie zależy od długości najmu. To cena domyślna – przy wypożyczeniu można ją zmienić.</p>
       <p>Program pilnuje, by w danym terminie nie wypożyczyć więcej sztuk, niż jest w magazynie. Kolumna „Wolnych teraz” pokazuje, ile sztuk jest w tej chwili dostępnych.</p>
       <p>Wyposażenie, którego już nie oferujesz, oznacz jako nieaktywne zamiast usuwać.</p>
     </div>
   </details>
   <details class="help-item">
-    <summary>Cennik – grupy cenowe pojazdów</summary>
+    <summary>Cennik – szablony cen</summary>
     <div class="body">
-      <p>Cennik to grupa cen wspólna dla wielu pojazdów, np. „Samochody osobowe – klasa B”. Każda grupa ma: cenę za dobę, cenę za godzinę, cenę za kilometr ponad limit (wszystkie netto) oraz kaucję.</p>
-      <p>Zmiana cen w grupie dotyczy od razu wszystkich jej pojazdów (w rezerwacjach – patrz „Kiedy zmiana cennika wpływa na wypożyczenia”). Cennika przypisanego do pojazdów nie można usunąć.</p>
+      <p>Cennik to <b>szablon cen</b>, np. „Samochody osobowe – klasa B”: cena za dobę, za godzinę, za kilometr ponad limit (netto) i kaucja. Cenniki nie są wymagane, ale oszczędzają wpisywania.</p>
+      <p>Cennik można przypisać pojazdowi jako domyślny – wtedy przy nowym wypożyczeniu jego ceny wpiszą się same. W formularzu wypożyczenia można też wczytać dowolny inny cennik albo wpisać ceny ręcznie.</p>
+      <p>Zmiana lub usunięcie cennika nie zmienia istniejących wypożyczeń. Po usunięciu cennika pojazdy, które go używały, zostają bez domyślnego cennika.</p>
     </div>
   </details>
 </section>
@@ -386,7 +390,8 @@
   <details class="help-item">
     <summary>Wycena wydaje się zła</summary>
     <div class="body">
-      <p>Sprawdź: sposób rozliczenia (doby czy godziny), dokładne godziny od–do (każda rozpoczęta doba/godzina się liczy), tolerancję i stawkę VAT w Ustawieniach oraz ceny w cenniku pojazdu. Pamiętaj, że po wydaniu pojazdu ceny są zamrożone – zmiana cennika już ich nie zmieni.</p>
+      <p>Jeśli wycena pokazuje 0 zł za najem, nie wpisano ceny – uzupełnij ją albo wczytaj z cennika.</p>
+      <p>Sprawdź: sposób rozliczenia (doby czy godziny), dokładne godziny od–do (każda rozpoczęta doba/godzina się liczy), tolerancję i stawkę VAT w Ustawieniach oraz ceny w sekcji „Ceny” wypożyczenia (✏️ Edytuj). Pamiętaj, że zmiana cennika nie zmienia cen w już zapisanych wypożyczeniach.</p>
     </div>
   </details>
 </div>

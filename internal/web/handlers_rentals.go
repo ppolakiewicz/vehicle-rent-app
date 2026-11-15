@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"vehicle-rent-app/internal/core"
@@ -28,6 +29,20 @@ type rentalInput struct {
 	KmLimit    string
 	Notes      string
 	Qty        map[int64]int64
+	// Prices as typed (net, "123,45"); a price list only fills them in.
+	DayRate  string
+	HourRate string
+	KmRate   string
+	Deposit  string
+	EqPrice  map[int64]string
+}
+
+// applyTemplate fills the prices from a price list.
+func (in *rentalInput) applyTemplate(c store.PriceCategory) {
+	in.DayRate = core.FormatAmountInput(c.DayRate)
+	in.HourRate = core.FormatAmountInput(c.HourRate)
+	in.KmRate = core.FormatAmountInput(c.KmRate)
+	in.Deposit = core.FormatAmountInput(c.Deposit)
 }
 
 // Locked reports fields that cannot change once the vehicle is issued.
@@ -67,6 +82,14 @@ func (s *Server) rentalNew(w http.ResponseWriter, r *http.Request) {
 	if q.Get("billing") == core.BillingHour {
 		in.Billing = core.BillingHour
 	}
+	// Start from the vehicle's price list, if it has one.
+	if in.VehicleID != 0 {
+		if v, err := s.st.Vehicle(in.VehicleID); err == nil && v.CategoryID != 0 {
+			if c, err := s.st.PriceCategory(v.CategoryID); err == nil {
+				in.applyTemplate(c)
+			}
+		}
+	}
 	s.rentalFormRender(w, r, in, nil)
 }
 
@@ -81,12 +104,15 @@ func (s *Server) rentalEdit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	in := rentalInput{ID: rt.ID, Number: rt.Number, Status: rt.Status, CustomerID: rt.CustomerID, VehicleID: rt.VehicleID,
-		StartAt: rt.StartAt, EndAt: rt.EndAt, Billing: rt.Billing, Notes: rt.Notes, Qty: map[int64]int64{}}
+		StartAt: rt.StartAt, EndAt: rt.EndAt, Billing: rt.Billing, Notes: rt.Notes, Qty: map[int64]int64{},
+		DayRate: core.FormatAmountInput(rt.DayRate), HourRate: core.FormatAmountInput(rt.HourRate),
+		KmRate: core.FormatAmountInput(rt.KmRate), Deposit: core.FormatAmountInput(rt.Deposit), EqPrice: map[int64]string{}}
 	if rt.KmLimit != nil {
 		in.KmLimit = strconv.FormatInt(*rt.KmLimit, 10)
 	}
 	for _, e := range rt.Equipment {
 		in.Qty[e.EquipmentID] = e.Quantity
+		in.EqPrice[e.EquipmentID] = core.FormatAmountInput(e.UnitPrice)
 	}
 	s.rentalFormRender(w, r, in, nil)
 }
@@ -107,14 +133,28 @@ func (s *Server) rentalFormRender(w http.ResponseWriter, r *http.Request, in ren
 		s.fail(w, r, err)
 		return
 	}
+	categories, err := s.st.PriceCategories()
+	if err != nil {
+		s.fail(w, r, err)
+		return
+	}
 	if errs == nil {
 		errs = map[string]string{}
+	}
+	// equipment without a typed price starts with its default price
+	if in.EqPrice == nil {
+		in.EqPrice = map[int64]string{}
+	}
+	for _, e := range equipment {
+		if _, ok := in.EqPrice[e.ID]; !ok {
+			in.EqPrice[e.ID] = core.FormatAmountInput(e.Price)
+		}
 	}
 	title := "Nowe wypożyczenie"
 	if in.ID != 0 {
 		title = "Wypożyczenie " + in.Number
 	}
-	data := D{"Title": title, "In": in, "Customers": customers, "Vehicles": vehicles, "Equipment": equipment, "Errors": errs}
+	data := D{"Title": title, "In": in, "Customers": customers, "Vehicles": vehicles, "Equipment": equipment, "Categories": categories, "Errors": errs}
 	s.addQuote(data, in)
 	s.render(w, r, "rental_form.html", data)
 }
@@ -125,7 +165,8 @@ func readRentalInput(f *form) rentalInput {
 		ID: f.id("id"), CustomerID: f.id("customer_id"), VehicleID: f.id("vehicle_id"),
 		NewKind: f.str("new_kind"), NewFirst: f.str("new_first"), NewLast: f.str("new_last"), NewCompany: f.str("new_company"), NewPhone: f.str("new_phone"),
 		StartAt: f.str("start_at"), EndAt: f.str("end_at"), Billing: f.str("billing"), KmLimit: f.str("km_limit"), Notes: f.str("notes"),
-		Qty: map[int64]int64{},
+		Qty: map[int64]int64{}, EqPrice: map[int64]string{},
+		DayRate: f.str("day_rate"), HourRate: f.str("hour_rate"), KmRate: f.str("km_rate"), Deposit: f.str("deposit"),
 	}
 	if in.Billing != core.BillingHour {
 		in.Billing = core.BillingDay
@@ -140,11 +181,17 @@ func readRentalInput(f *form) rentalInput {
 				in.Qty[id] = n
 			}
 		}
+		if len(k) > 4 && k[:4] == "eqp_" {
+			if id, err := strconv.ParseInt(k[4:], 10, 64); err == nil {
+				in.EqPrice[id] = f.str(k)
+			}
+		}
 	}
 	return in
 }
 
-// buildRental turns the input into a rental with current prices, validating it.
+// buildRental turns the input into a rental, validating it. Prices are the
+// ones typed in the form.
 // Returns the rental, field errors, conflicts and equipment shortages.
 func (s *Server) buildRental(in rentalInput, f *form) (store.Rental, []store.Conflict, []store.EquipmentShortage, error) {
 	st, err := s.st.Settings()
@@ -202,18 +249,20 @@ func (s *Server) buildRental(in rentalInput, f *form) (store.Rental, []store.Con
 			rt.VehicleName = vehicle.Name()
 		}
 	}
-	// Prices follow the price list until the vehicle is issued.
-	if !issued && vehicle.ID != 0 {
-		cat, err := s.st.PriceCategory(vehicle.CategoryID)
-		if err != nil {
-			return rt, nil, nil, err
+	money := func(field, v string) int64 {
+		m, err := core.ParseMoney(v)
+		if err != nil || m < 0 {
+			errs[field] = "Nieprawidłowa kwota (np. 120,50)."
+			return 0
 		}
-		rt.HourRate, rt.DayRate, rt.KmRate, rt.Deposit = cat.HourRate, cat.DayRate, cat.KmRate, cat.Deposit
-		rt.VATRate, rt.ToleranceMinutes = st.VATRate, st.ToleranceMinutes
+		return m
 	}
-	old := map[int64]int64{}
-	for _, e := range rt.Equipment {
-		old[e.EquipmentID] = e.UnitPrice
+	rt.DayRate = money("day_rate", in.DayRate)
+	rt.HourRate = money("hour_rate", in.HourRate)
+	rt.KmRate = money("km_rate", in.KmRate)
+	rt.Deposit = money("deposit", in.Deposit)
+	if rt.ID == 0 {
+		rt.VATRate, rt.ToleranceMinutes = st.VATRate, st.ToleranceMinutes
 	}
 	rt.Equipment = nil
 	eqList, err := s.st.EquipmentList(false)
@@ -226,8 +275,8 @@ func (s *Server) buildRental(in rentalInput, f *form) (store.Rental, []store.Con
 			continue
 		}
 		price := e.Price
-		if p, ok := old[e.ID]; ok && issued {
-			price = p
+		if v, ok := in.EqPrice[e.ID]; ok && strings.TrimSpace(v) != "" {
+			price = money("equipment", v)
 		}
 		rt.Equipment = append(rt.Equipment, store.RentalEquipment{EquipmentID: e.ID, Name: e.Name, Quantity: q, UnitPrice: price})
 	}

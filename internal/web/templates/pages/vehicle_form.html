@@ -1,6 +1,5 @@
 {{define "content"}}
 <h1>{{if .V.ID}}Edycja pojazdu{{else}}Nowy pojazd{{end}}</h1>
-{{if not .Categories}}<div class="warnbox">Najpierw <a href="/prices/new">dodaj cennik</a> – każdy pojazd musi mieć przypisany cennik.</div>{{end}}
 <form method="post" action="{{if .V.ID}}/vehicles/{{.V.ID}}{{else}}/vehicles{{end}}" class="card stack">
   <div class="row">
     <div class="field"><label>Typ</label><select name="kind">{{range kinds}}<option {{if eq . $.V.Kind}}selected{{end}}>{{.}}</option>{{end}}</select></div>
@@ -14,10 +13,11 @@
     <div class="field"><label>Kolor</label><input type="text" name="color" value="{{.V.Color}}"></div>
     <div class="field"><label>Przebieg (km)</label><input type="number" name="mileage" min="0" value="{{.V.Mileage}}">{{template "err" .Errors.mileage}}</div>
   </div>
-  <div class="field"><label>Cennik</label>
-    <select name="category_id"><option value="">— wybierz —</option>
+  <div class="field"><label>Domyślny cennik (opcjonalnie)</label>
+    <select name="category_id"><option value="">— brak – ceny wpisywane przy wypożyczeniu —</option>
       {{range .Categories}}<option value="{{.ID}}" {{if eq .ID $.V.CategoryID}}selected{{end}}>{{.Name}} · {{money .DayRate}}/doba, {{money .HourRate}}/godz.</option>{{end}}
-    </select>{{template "err" .Errors.category_id}}</div>
+    </select>{{template "err" .Errors.category_id}}
+    <div class="hint">Ceny z tego cennika podpowiadają się przy nowym wypożyczeniu tego pojazdu. Można je wtedy zmienić.</div></div>
   <div class="row">
     <div class="field"><label>Przegląd ważny do</label><input type="date" name="inspection_due" value="{{.V.InspectionDue}}"></div>
     <div class="field"><label>OC ważne do</label><input type="date" name="oc_due" value="{{.V.OCDue}}"></div>

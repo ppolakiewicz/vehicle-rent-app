@@ -39,7 +39,7 @@ type Vehicle struct {
 	Year          int
 	Color         string
 	Mileage       int64
-	CategoryID    int64
+	CategoryID    int64 // default price list (template), 0 = none
 	CategoryName  string
 	InspectionDue string
 	OCDue         string

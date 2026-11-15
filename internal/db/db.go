@@ -53,14 +53,31 @@ func migrate(d *sql.DB) error {
 	if err := d.QueryRow("PRAGMA user_version").Scan(&current); err != nil {
 		return err
 	}
+	type step struct {
+		num  int
+		name string
+	}
+	var pending []step
 	for _, name := range names {
 		num, err := strconv.Atoi(strings.SplitN(name, "_", 2)[0])
 		if err != nil {
 			return fmt.Errorf("zła nazwa migracji %s", name)
 		}
-		if num <= current {
-			continue
+		if num > current {
+			pending = append(pending, step{num, name})
 		}
+	}
+	if len(pending) == 0 {
+		return nil
+	}
+	// Migrations may rebuild tables (the SQLite way to change a column), which
+	// needs foreign keys off; they are checked once everything is applied.
+	if _, err := d.Exec("PRAGMA foreign_keys = OFF"); err != nil {
+		return err
+	}
+	defer d.Exec("PRAGMA foreign_keys = ON")
+	for _, p := range pending {
+		num, name := p.num, p.name
 		body, err := migrations.ReadFile("migrations/" + name)
 		if err != nil {
 			return err
@@ -80,6 +97,14 @@ func migrate(d *sql.DB) error {
 		if err := tx.Commit(); err != nil {
 			return err
 		}
+	}
+	rows, err := d.Query("PRAGMA foreign_key_check")
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+	if rows.Next() {
+		return fmt.Errorf("migracja naruszyła spójność danych (klucze obce)")
 	}
 	return nil
 }

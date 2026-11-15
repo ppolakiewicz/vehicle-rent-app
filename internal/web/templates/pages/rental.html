@@ -55,7 +55,6 @@
     <p>{{money .R.Deposit}}
       {{if .R.DepositCollected}}· pobrana{{if eq .R.Status "returned"}} · zwrócono {{money .R.DepositReturned}}{{if gt .R.DepositKept 0}} · <b>zatrzymano {{money .R.DepositKept}}</b>{{end}}{{end}}
       {{else if ne .R.Status "reserved"}}· nie pobrano{{else}}· do pobrania przy wydaniu{{end}}</p>
-    {{if eq .R.Status "reserved"}}<p class="hint">Ceny pochodzą z aktualnego cennika i zostaną zablokowane przy wydaniu pojazdu.</p>{{end}}
   </div>
 </div>
 {{end}}

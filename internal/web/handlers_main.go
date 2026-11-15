@@ -21,8 +21,7 @@ func (s *Server) dashboard(w http.ResponseWriter, r *http.Request) {
 		s.fail(w, r, err)
 		return
 	}
-	cats, _ := s.st.PriceCategories()
-	s.render(w, r, "dashboard.html", D{"Title": "Pulpit", "D": d, "S": st, "NoCategories": len(cats) == 0,
+	s.render(w, r, "dashboard.html", D{"Title": "Pulpit", "D": d, "S": st, "NoVehicles": d.VehicleCount == 0,
 		"Today": core.Today().Format(core.DateLayout)})
 }
 

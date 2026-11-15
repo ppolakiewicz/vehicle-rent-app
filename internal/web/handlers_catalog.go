@@ -151,7 +151,10 @@ func (s *Server) vehicleShow(w http.ResponseWriter, r *http.Request) {
 	}
 	rentals, _ := s.st.Rentals(store.RentalFilter{VehicleID: v.ID, Limit: 50})
 	blocks, _ := s.st.Blocks(v.ID)
-	cat, _ := s.st.PriceCategory(v.CategoryID)
+	var cat store.PriceCategory
+	if v.CategoryID != 0 {
+		cat, _ = s.st.PriceCategory(v.CategoryID)
+	}
 	now := core.Now()
 	s.render(w, r, "vehicle.html", D{"Title": v.Name(), "V": v, "Cat": cat, "Rentals": rentals, "Blocks": blocks,
 		"BlockStart": core.FormatDT(now), "BlockEnd": core.FormatDT(now.AddDate(0, 0, 1)),
@@ -191,9 +194,6 @@ func (s *Server) vehicleSave(w http.ResponseWriter, r *http.Request) {
 	v.Color = f.str("color")
 	v.Mileage = f.int("mileage")
 	v.CategoryID = f.id("category_id")
-	if v.CategoryID == 0 {
-		f.Errors["category_id"] = "Wybierz cennik. Jeśli lista jest pusta, dodaj najpierw cennik w zakładce „Cennik”."
-	}
 	v.InspectionDue = f.date("inspection_due")
 	v.OCDue = f.date("oc_due")
 	v.ACDue = f.date("ac_due")
@@ -348,16 +348,12 @@ func (s *Server) priceSave(w http.ResponseWriter, r *http.Request) {
 		s.fail(w, r, err)
 		return
 	}
-	redirect(w, r, "/prices", "Zapisano cennik. Nowe ceny dotyczą rezerwacji; wydane i zakończone wypożyczenia zachowują swoje ceny.")
+	redirect(w, r, "/prices", "Zapisano cennik. Istniejące wypożyczenia zachowują swoje ceny.")
 }
 
 func (s *Server) priceDelete(w http.ResponseWriter, r *http.Request) {
 	if err := s.st.DeletePriceCategory(pathID(r)); err != nil {
-		msg := "Błąd usuwania: " + err.Error()
-		if errors.Is(err, store.ErrInUse) {
-			msg = "Nie można usunąć – ten cennik jest przypisany do pojazdów."
-		}
-		redirect(w, r, "/prices", msg)
+		redirect(w, r, "/prices", "Błąd usuwania: "+err.Error())
 		return
 	}
 	redirect(w, r, "/prices", "Usunięto cennik.")

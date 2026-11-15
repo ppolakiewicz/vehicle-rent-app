@@ -22,14 +22,14 @@
   <thead><tr><th>Pojazd</th><th>Typ</th><th>Cennik</th><th class="num">Szacunkowa cena (brutto)</th><th></th></tr></thead>
   <tbody>
   {{range .Results}}
-    <tr><td><a href="/vehicles/{{.V.ID}}"><b>{{.V.Name}}</b></a></td><td>{{.V.Kind}}</td><td>{{.V.CategoryName}}</td>
-      <td class="num"><b>{{money .Quote.Gross}}</b><br><span class="muted">{{.Quote.Units}} {{(index .Quote.Lines 0).Unit}}, netto {{money .Quote.Net}}</span></td>
+    <tr><td><a href="/vehicles/{{.V.ID}}"><b>{{.V.Name}}</b></a></td><td>{{.V.Kind}}</td><td>{{if .V.CategoryName}}{{.V.CategoryName}}{{else}}<span class="muted">—</span>{{end}}</td>
+      <td class="num">{{if .V.CategoryID}}<b>{{money .Quote.Gross}}</b><br><span class="muted">{{.Quote.Units}} {{(index .Quote.Lines 0).Unit}}, netto {{money .Quote.Net}}</span>{{else}}<span class="muted">cena do wpisania</span>{{end}}</td>
       <td class="num"><a class="btn primary" href="{{.URL}}">Zarezerwuj</a></td></tr>
   {{else}}
     <tr><td colspan="5" class="empty">Brak wolnych pojazdów w tym terminie.</td></tr>
   {{end}}
   </tbody>
 </table>
-<p class="hint">Cena bez wyposażenia dodatkowego i bez ewentualnej dopłaty za kilometry.</p>
+<p class="hint">Szacunkowa cena według domyślnego cennika pojazdu, bez wyposażenia i dopłaty za kilometry. Przy rezerwacji możesz ją zmienić.</p>
 {{end}}
 {{end}}

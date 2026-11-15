@@ -85,33 +85,31 @@ func (s *Store) SavePriceCategory(c *PriceCategory) error {
 	return err
 }
 
+// DeletePriceCategory deletes a price list; its vehicles are left without one.
 func (s *Store) DeletePriceCategory(id int64) error {
-	var n int
-	s.db.QueryRow("SELECT COUNT(*) FROM vehicles WHERE category_id = ?", id).Scan(&n)
-	if n > 0 {
-		return ErrInUse
-	}
 	_, err := s.db.Exec("DELETE FROM price_categories WHERE id = ?", id)
 	return err
 }
 
 // ---------- vehicles ----------
 
-const vehicleCols = `v.id, v.kind, v.make, v.model, v.reg_number, v.vin, v.year, v.color, v.mileage, v.category_id, c.name,
+const vehicleCols = `v.id, v.kind, v.make, v.model, v.reg_number, v.vin, v.year, v.color, v.mileage, v.category_id, COALESCE(c.name, ''),
 	v.inspection_due, v.oc_due, v.ac_due, v.active, v.notes`
 
 func scanVehicle(sc interface{ Scan(...any) error }) (Vehicle, error) {
 	var v Vehicle
 	var active int
-	err := sc.Scan(&v.ID, &v.Kind, &v.Make, &v.Model, &v.RegNumber, &v.VIN, &v.Year, &v.Color, &v.Mileage, &v.CategoryID, &v.CategoryName,
+	var cat sql.NullInt64
+	err := sc.Scan(&v.ID, &v.Kind, &v.Make, &v.Model, &v.RegNumber, &v.VIN, &v.Year, &v.Color, &v.Mileage, &cat, &v.CategoryName,
 		&v.InspectionDue, &v.OCDue, &v.ACDue, &active, &v.Notes)
 	v.Active = active == 1
+	v.CategoryID = cat.Int64
 	return v, err
 }
 
 // Vehicles lists vehicles; onlyActive hides withdrawn ones.
 func (s *Store) Vehicles(onlyActive bool) ([]Vehicle, error) {
-	q := `SELECT ` + vehicleCols + ` FROM vehicles v JOIN price_categories c ON c.id = v.category_id`
+	q := `SELECT ` + vehicleCols + ` FROM vehicles v LEFT JOIN price_categories c ON c.id = v.category_id`
 	if onlyActive {
 		q += ` WHERE v.active = 1`
 	}
@@ -133,11 +131,15 @@ func (s *Store) Vehicles(onlyActive bool) ([]Vehicle, error) {
 }
 
 func (s *Store) Vehicle(id int64) (Vehicle, error) {
-	return scanVehicle(s.db.QueryRow(`SELECT `+vehicleCols+` FROM vehicles v JOIN price_categories c ON c.id = v.category_id WHERE v.id = ?`, id))
+	return scanVehicle(s.db.QueryRow(`SELECT `+vehicleCols+` FROM vehicles v LEFT JOIN price_categories c ON c.id = v.category_id WHERE v.id = ?`, id))
 }
 
 func (s *Store) SaveVehicle(v *Vehicle) error {
-	args := []any{v.Kind, v.Make, v.Model, v.RegNumber, v.VIN, v.Year, v.Color, v.Mileage, v.CategoryID, v.InspectionDue, v.OCDue, v.ACDue, b2i(v.Active), v.Notes}
+	var cat any
+	if v.CategoryID != 0 {
+		cat = v.CategoryID
+	}
+	args := []any{v.Kind, v.Make, v.Model, v.RegNumber, v.VIN, v.Year, v.Color, v.Mileage, cat, v.InspectionDue, v.OCDue, v.ACDue, b2i(v.Active), v.Notes}
 	if v.ID == 0 {
 		res, err := s.db.Exec(`INSERT INTO vehicles(kind, make, model, reg_number, vin, year, color, mileage, category_id, inspection_due, oc_due, ac_due, active, notes)
 			VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, args...)

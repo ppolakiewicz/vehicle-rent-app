@@ -36,14 +36,18 @@ Aby odtworzyć dane z kopii: zamknij program, zastąp `wypozyczalnia.db` wybrany
 
 ### Zasady rozliczeń
 
-- Ceny w cenniku są **netto**; VAT (domyślnie 23%) doliczany jest do sumy.
+- Każde wypożyczenie ma własne ceny (netto): za dobę/godzinę, za km ponad limit, kaucję
+  i cenę każdej pozycji wyposażenia. Cennik jest tylko szablonem: jego ceny wpisują się
+  do formularza (z domyślnego cennika pojazdu lub wybranego ręcznie) i można je zmienić.
+  Zmiana cennika nie zmienia zapisanych wypożyczeń.
+- VAT (domyślnie 23%) doliczany jest do sumy netto.
 - Rozliczenie dobowe: każda rozpoczęta doba, z tolerancją (domyślnie 60 min) na ostatnią dobę.
 - Rozliczenie godzinowe: każda rozpoczęta godzina.
-- Wyposażenie dodatkowe: opłata jednorazowa za sztukę; liczba sztuk jest ograniczona.
-- Limit km (opcjonalny) na cały najem; za każdy km ponad limit stawka z cennika.
+- Wyposażenie dodatkowe: opłata jednorazowa za sztukę (cena domyślna z listy wyposażenia,
+  do zmiany przy wypożyczeniu); liczba sztuk jest ograniczona.
+- Limit km (opcjonalny) na cały najem; za każdy km ponad limit stawka z wypożyczenia.
 - Późny zwrot: liczony jest faktyczny czas zwrotu (wcześniejszy zwrot – planowany).
 - Kaucja osobno, bez VAT; przy zwrocie można zatrzymać jej część.
-- Ceny rezerwacji podążają za cennikiem, a przy wydaniu pojazdu zostają zamrożone.
 
 ## Rozwój
 

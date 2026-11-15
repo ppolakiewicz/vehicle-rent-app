@@ -149,3 +149,25 @@ func TestReturnUpdatesMileageAndDelete(t *testing.T) {
 		t.Errorf("search customers %d", len(list))
 	}
 }
+
+func TestVehicleWithoutPriceList(t *testing.T) {
+	s := newStore(t)
+	v, _, _ := seed(t, s)
+	free := Vehicle{Kind: "Bus", Make: "Ford", Model: "Transit", Active: true}
+	must(t, s.SaveVehicle(&free))
+	got, err := s.Vehicle(free.ID)
+	must(t, err)
+	if got.CategoryID != 0 || got.CategoryName != "" {
+		t.Errorf("unexpected category %d %q", got.CategoryID, got.CategoryName)
+	}
+	list, _ := s.Vehicles(true)
+	if len(list) != 2 {
+		t.Fatalf("vehicles listed: %d", len(list))
+	}
+	// deleting the price list keeps the vehicle, without a price list
+	must(t, s.DeletePriceCategory(v.CategoryID))
+	got, _ = s.Vehicle(v.ID)
+	if got.CategoryID != 0 {
+		t.Errorf("price list not unlinked")
+	}
+}

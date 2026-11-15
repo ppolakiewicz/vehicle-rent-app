@@ -3,7 +3,7 @@
 {{if .In.Locked}}<div class="info">Pojazd jest wydany – można zmienić tylko termin zakończenia, limit km, wyposażenie i uwagi.</div>{{end}}
 {{if .Errors}}<div class="alert">Popraw zaznaczone pola.</div>{{end}}
 <form id="rental-form" method="post" action="{{if .In.ID}}/rentals/{{.In.ID}}{{else}}/rentals{{end}}"
-  hx-post="/rentals/quote" hx-trigger="change, input delay:600ms" hx-target="#quote" hx-swap="innerHTML">
+  hx-post="/rentals/quote" hx-trigger="change, input delay:600ms" hx-target="#quote" hx-swap="innerHTML" hx-sync="this:replace">
   <input type="hidden" name="id" value="{{.In.ID}}">
   <div class="two">
     <div>
@@ -42,7 +42,7 @@
         <div class="field"><label>Pojazd</label>
           <select name="vehicle_id" {{if .In.Locked}}disabled{{end}}>
             <option value="">— wybierz pojazd —</option>
-            {{range .Vehicles}}<option value="{{.ID}}" {{if eq .ID $.In.VehicleID}}selected{{end}}>{{.Kind}}: {{.Name}} · {{.CategoryName}}</option>{{end}}
+            {{range .Vehicles}}<option value="{{.ID}}" data-cat="{{.CategoryID}}" {{if eq .ID $.In.VehicleID}}selected{{end}}>{{.Kind}}: {{.Name}}{{with .CategoryName}} · {{.}}{{end}}</option>{{end}}
           </select>
           {{template "err" .Errors.vehicle_id}}
           {{if not .Vehicles}}<div class="hint">Brak pojazdów – <a href="/vehicles/new">dodaj pojazd</a>.</div>{{end}}
@@ -63,17 +63,36 @@
         </div>
       </div>
 
-      <div class="card">
-        <h2>3. Wyposażenie dodatkowe</h2>
-        {{template "err" .Errors.equipment}}
-        {{range .Equipment}}
-          <div class="eq-row"><span class="name">{{.Name}} <span class="muted">· {{money .Price}} netto · {{.Stock}} szt. w magazynie</span></span>
-            <input type="number" min="0" max="{{.Stock}}" name="eq_{{.ID}}" value="{{with index $.In.Qty .ID}}{{.}}{{else}}0{{end}}"> szt.</div>
-        {{else}}<p class="muted">Brak wyposażenia. Możesz je dodać w zakładce <a href="/equipment">Wyposażenie</a>.</p>{{end}}
+      <div class="card" id="prices">
+        <h2>3. Ceny (netto)</h2>
+        <div class="field"><label>Wczytaj ceny z cennika</label>
+          <select id="price-template">
+            <option value="">— wybierz cennik, aby wpisać jego ceny —</option>
+            {{range .Categories}}<option value="{{.ID}}" data-day="{{amount .DayRate}}" data-hour="{{amount .HourRate}}" data-km="{{amount .KmRate}}" data-deposit="{{amount .Deposit}}">{{.Name}} · {{money .DayRate}}/doba, {{money .HourRate}}/godz.</option>{{end}}
+          </select>
+          <div class="hint">Cennik to tylko podpowiedź – po wyborze pojazdu jego cennik wczyta się sam. Każdą cenę możesz zmienić ręcznie.</div>
+        </div>
+        <div class="row">
+          <div class="field" data-show-when="billing=day"><label>Cena za dobę (zł)</label><input type="text" inputmode="decimal" name="day_rate" value="{{.In.DayRate}}" data-price>{{template "err" .Errors.day_rate}}</div>
+          <div class="field" data-show-when="billing=hour"><label>Cena za godzinę (zł)</label><input type="text" inputmode="decimal" name="hour_rate" value="{{.In.HourRate}}" data-price>{{template "err" .Errors.hour_rate}}</div>
+          <div class="field"><label>Za km ponad limit (zł)</label><input type="text" inputmode="decimal" name="km_rate" value="{{.In.KmRate}}" data-price>{{template "err" .Errors.km_rate}}</div>
+          <div class="field"><label>Kaucja (zł, bez VAT)</label><input type="text" inputmode="decimal" name="deposit" value="{{.In.Deposit}}" data-price>{{template "err" .Errors.deposit}}</div>
+        </div>
       </div>
 
       <div class="card">
-        <h2>4. Uwagi</h2>
+        <h2>4. Wyposażenie dodatkowe</h2>
+        {{template "err" .Errors.equipment}}
+        {{range .Equipment}}
+          <div class="eq-row"><span class="name">{{.Name}} <span class="muted">· {{.Stock}} szt. w magazynie</span></span>
+            <input type="number" min="0" max="{{.Stock}}" name="eq_{{.ID}}" value="{{with index $.In.Qty .ID}}{{.}}{{else}}0{{end}}" title="Liczba sztuk"> szt. ×
+            <input type="text" inputmode="decimal" name="eqp_{{.ID}}" value="{{index $.In.EqPrice .ID}}" title="Cena netto za sztukę (jednorazowo)" style="width:100px"> zł</div>
+        {{else}}<p class="muted">Brak wyposażenia. Możesz je dodać w zakładce <a href="/equipment">Wyposażenie</a>.</p>{{end}}
+        {{if .Equipment}}<div class="hint">Cena netto za sztukę, jednorazowo za cały najem.</div>{{end}}
+      </div>
+
+      <div class="card">
+        <h2>5. Uwagi</h2>
         <textarea name="notes" placeholder="np. miejsce wydania, dodatkowy kierowca…">{{.In.Notes}}</textarea>
       </div>
     </div>
@@ -87,6 +106,37 @@
     </div>
   </div>
 </form>
+<script>
+(function () {
+  var form = document.getElementById('rental-form');
+  var tpl = document.getElementById('price-template');
+  var vehicle = form.querySelector('select[name=vehicle_id]');
+  // Prices typed by hand are not overwritten when another vehicle is chosen.
+  var typed = {{if .In.ID}}true{{else}}false{{end}};
+  form.querySelectorAll('[data-price]').forEach(function (el) {
+    el.addEventListener('input', function () { typed = true; tpl.value = ''; });
+  });
+  function load(opt) {
+    if (!opt || !opt.value) return;
+    form.day_rate.value = opt.dataset.day;
+    form.hour_rate.value = opt.dataset.hour;
+    form.km_rate.value = opt.dataset.km;
+    form.deposit.value = opt.dataset.deposit;
+    typed = false;
+    htmx.trigger(form, 'change');
+  }
+  tpl.addEventListener('change', function (e) {
+    e.stopPropagation(); // the quote is refreshed by load()
+    load(tpl.selectedOptions[0]);
+  });
+  if (vehicle) vehicle.addEventListener('change', function () {
+    var cat = vehicle.selectedOptions[0] && vehicle.selectedOptions[0].dataset.cat;
+    if (typed || !cat || cat === '0') return;
+    tpl.value = cat;
+    load(tpl.selectedOptions[0]);
+  });
+})();
+</script>
 {{end}}
 
 {{define "quote"}}
@@ -94,6 +144,8 @@
 {{with .QuoteError}}<div class="alert">{{.}}</div>{{end}}
 {{range .Conflicts}}<div class="alert">⛔ Pojazd zajęty: {{.Label}}<br><small>{{dt .StartAt}} – {{dt .EndAt}}</small></div>{{end}}
 {{range .Shortages}}<div class="alert">⛔ {{.Name}}: chcesz {{.Requested}} szt., wolnych w tym terminie {{.Available}}.</div>{{end}}
+{{with $.R}}{{if or (and (eq .Billing "day") (eq .DayRate 0)) (and (eq .Billing "hour") (eq .HourRate 0))}}
+<div class="warnbox">Cena za {{if eq .Billing "day"}}dobę{{else}}godzinę{{end}} wynosi 0 zł – wpisz ją w sekcji „Ceny” albo wczytaj z cennika.</div>{{end}}{{end}}
 {{with .Quote}}
 <table class="quote-table" style="width:100%">
   {{range .Lines}}<tr><td>{{.Name}}<br><span class="muted">{{.Qty}} {{.Unit}} × {{money .UnitPrice}}</span></td><td class="num">{{money .Net}}</td></tr>{{end}}

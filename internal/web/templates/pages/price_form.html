@@ -11,5 +11,5 @@
   <div class="field"><label>Uwagi</label><input type="text" name="notes" value="{{.C.Notes}}"></div>
   <div class="form-actions"><button class="primary big">💾 Zapisz</button><a class="btn big" href="/prices">Anuluj</a></div>
 </form>
-{{if .C.ID}}<form method="post" action="/prices/{{.C.ID}}/delete" data-confirm="Usunąć ten cennik?"><button class="danger">Usuń</button></form>{{end}}
+{{if .C.ID}}<form method="post" action="/prices/{{.C.ID}}/delete" data-confirm="Usunąć ten cennik? Pojazdy, które go używały, zostaną bez domyślnego cennika. Istniejące wypożyczenia się nie zmienią."><button class="danger">Usuń</button></form>{{end}}
 {{end}}

@@ -6,7 +6,7 @@
   {{range .Vehicles}}
     <tr class="click {{if not .Active}}inactive{{end}}" onclick="location='/vehicles/{{.ID}}'">
       <td><a href="/vehicles/{{.ID}}"><b>{{.Name}}</b></a>{{if not .Active}} <span class="muted">(wycofany)</span>{{end}}</td>
-      <td>{{.Kind}}</td><td>{{.CategoryName}}</td><td class="num">{{km .Mileage}} km</td>
+      <td>{{.Kind}}</td><td>{{if .CategoryName}}{{.CategoryName}}{{else}}<span class="muted">—</span>{{end}}</td><td class="num">{{km .Mileage}} km</td>
       <td class="{{if and .InspectionDue (lt .InspectionDue $.Today)}}late{{end}}">{{date .InspectionDue}}</td>
       <td class="{{if and .OCDue (lt .OCDue $.Today)}}late{{end}}">{{date .OCDue}}</td>
       <td>{{with index $.State .ID}}{{if eq . "blocked"}}<span class="badge st-blocked">serwis</span>{{else}}<span class="badge st-issued">zajęty</span>{{end}}{{else}}{{if .Active}}<span class="badge st-free">wolny</span>{{end}}{{end}}</td>

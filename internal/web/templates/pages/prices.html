@@ -1,6 +1,6 @@
 {{define "content"}}
 <div class="head"><h1>Cennik</h1><a class="btn primary" href="/prices/new">＋ Dodaj cennik</a></div>
-<p class="muted">Ceny netto. VAT {{rate .S.VATRate}}% doliczany jest przy wycenie (zmienisz go w Ustawieniach). Każdy pojazd ma przypisany jeden cennik.</p>
+<p class="muted">Cennik to szablon cen: przy nowym wypożyczeniu ceny wczytują się z domyślnego cennika pojazdu albo z cennika wybranego w formularzu i można je zmienić ręcznie. Zmiana cennika nie zmienia istniejących wypożyczeń. Ceny netto – VAT {{rate .S.VATRate}}% doliczany jest przy wycenie.</p>
 <table class="list">
   <thead><tr><th>Nazwa</th><th class="num">Doba</th><th class="num">Godzina</th><th class="num">Km ponad limit</th><th class="num">Kaucja</th><th class="num">Pojazdów</th><th></th></tr></thead>
   <tbody>
@@ -8,7 +8,7 @@
     <tr><td><b>{{.Name}}</b>{{with .Notes}}<br><span class="muted">{{.}}</span>{{end}}</td><td class="num">{{money .DayRate}}</td><td class="num">{{money .HourRate}}</td>
       <td class="num">{{money .KmRate}}</td><td class="num">{{money .Deposit}}</td><td class="num">{{.Vehicles}}</td>
       <td class="num"><a class="btn small" href="/prices/{{.ID}}/edit">Edytuj</a></td></tr>
-  {{else}}<tr><td colspan="7" class="empty">Brak cenników – dodaj np. „Samochody osobowe”, „Quady”.</td></tr>{{end}}
+  {{else}}<tr><td colspan="7" class="empty">Brak cenników. Nie są wymagane – ceny można wpisywać przy każdym wypożyczeniu – ale ułatwiają pracę. Dodaj np. „Samochody osobowe”, „Quady”.</td></tr>{{end}}
   </tbody>
 </table>
 {{end}}

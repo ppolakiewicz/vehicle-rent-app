@@ -22,13 +22,19 @@
     </table>
   </div>
   <div class="card">
-    <h2>Cennik: {{.Cat.Name}}</h2>
+    {{if .Cat.ID}}
+    <h2>Domyślny cennik: {{.Cat.Name}}</h2>
     <table class="kv">
       <tr><th>Doba (netto)</th><td>{{money .Cat.DayRate}}</td></tr>
       <tr><th>Godzina (netto)</th><td>{{money .Cat.HourRate}}</td></tr>
       <tr><th>Km ponad limit (netto)</th><td>{{money .Cat.KmRate}}</td></tr>
       <tr><th>Kaucja</th><td>{{money .Cat.Deposit}}</td></tr>
     </table>
+    <p class="hint">Podpowiedź cen dla nowych wypożyczeń – można je zmienić przy każdym wypożyczeniu.</p>
+    {{else}}
+    <h2>Cennik</h2>
+    <p class="muted">Brak domyślnego cennika – ceny wpisuje się przy każdym wypożyczeniu. Możesz go przypisać w <a href="/vehicles/{{.V.ID}}/edit">edycji pojazdu</a>.</p>
+    {{end}}
   </div>
 </div>
 
